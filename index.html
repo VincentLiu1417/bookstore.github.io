@@ -3,7 +3,17 @@
 <head>
 <title>Page Title</title>
 
+<script>
+  async function fetchBookTitle() {
+      const response = await fetch('fetchBook.php');
+      const bookTitle = await response.json();
 
+      const titleElement = document.getElementById('ToKillAMockingbirdHarperLee1899Paperback');
+      titleElement.textContent = bookTitle;
+  }
+
+  window.onload = fetchBookTitle;
+</script>
 
 </head>
 <body style="background-color: #FDFBE4;">
@@ -19,8 +29,9 @@
       <div class="FeaturedBooks" style="left: 396px; top: 0px; position: absolute; text-align: center; color: black; font-size: 64px; font-family: Gaegu; font-weight: 700; line-height: 35px; word-wrap: break-word">Featured Books</div>
       <div class="Featuredbook1" style="width: 214px; height: 421px; left: 0px; top: 111px; position: absolute">
         <div class="Button" style="width: 193px; height: 42px; left: 11px; top: 399px; position: absolute; background: #A35950; border-radius: 30px"></div>
-        <img class="Image1featuredbook" style="width: 163px; height: 246px; left: 26px; top: 0px; position: absolute; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25)" src="https://via.placeholder.com/163x246" />
-        <div class="ToKillAMockingbirdHarperLee1899Paperback" style="left: 0px; top: 258px; position: absolute; text-align: center; color: black; font-size: 20px; font-family: Gaegu; font-weight: 700; line-height: 35px; word-wrap: break-word">TO KILL A MOCKINGBIRD<br/>HARPER LEE<br/>$18.99 PAPERBACK</div>
+        <a href="bookDetailTest.html" target="_self"><img class="Image1featuredbook" style="width: 163px; height: 246px; left: 26px; top: 0px; position: absolute; box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25)" src="https://via.placeholder.com/163x246" /></a>
+        
+        <div id="ToKillAMockingbirdHarperLee1899Paperback" style="left: 0px; top: 258px; position: absolute; text-align: center; color: black; font-size: 20px; font-family: Gaegu; font-weight: 700; line-height: 35px; word-wrap: break-word">TO KILL A MOCKINGBIRD<br/>HARPER LEE<br/>$18.99 PAPERBACK</div>
         <div class="AddToCart" style="left: 32px; top: 402px; position: absolute; text-align: center; color: white; font-size: 20px; font-family: Gaegu; font-weight: 700; line-height: 35px; word-wrap: break-word">ADD TO CART</div>
         <img class="Carticon" style="width: 25px; height: 22px; left: 173px; top: 409px; position: absolute" src="Images/icons8-add-to-cart-48.png" />
       </div>
