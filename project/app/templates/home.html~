@@ -1,0 +1,49 @@
+<!-- templates/registration/email_verification_sent.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+</head>
+<body>
+  <p>
+    {% if user.is_authenticated %}
+    Hi, {{user.username}}
+    <form method="post" action="{% url 'logout' %}">
+      {% csrf_token %}
+      <button type="submit">Logout</button>
+    </form>
+    {% else %}
+    Hi, guest
+    <a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Sign up</a>
+    {% endif %}
+  </p>
+  <h1>Welcome to team3books</h1>
+  <h2>Featured Books</h2>
+    <ul style='display: flex '>
+      {% for book in featured_books %}
+      <li>
+	<img src="{{ book.cover_picture.url }}" alt="{{ book.title }} cover" width='100'>
+	<h3>{{ book.title }}</h3>
+	<p>{{ book.authors }}</p>
+	<p>${{ book.selling_price }} </p>
+      </li>
+      {% empty %}
+          <p>No featured books availavle.</p>
+      {% endfor %}
+    </ul>
+
+    <h2>New Arrivals</h2>
+    <ul>
+      {% for book in new_arrivals_books %}
+      <li>
+	<img src="{{ book.cover_picture.url }}" alt="{{ book.title }} cover" width="100">
+        <h3>{{ book.title }}</h3>
+        <p>Author: {{ book.authors }}</p>
+	<p>${{ book.selling_price }} </p>
+      </li>
+      {% empty %}
+      <p>No new arrivals available.</p>
+      {% endfor %}
+    </ul>
+</body>
+</html>
