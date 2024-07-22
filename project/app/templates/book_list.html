@@ -16,15 +16,22 @@
     <!-- Display Books -->
     {% if books %}
         <div class="book-list">
-            {% for book in books %}
-                <div class="book">
-                    <h2><a href="{% url 'book_detail' book.pk %}">{{ book.title }}</a></h2>
-                    {% if book.cover_picture %}
-                        <img src="{{ book.cover_picture.url }}" alt="{{ book.title }}" style="max-width: 200px; height: auto;">
-                    {% else %}
-                        <p>No cover image available</p>
-                    {% endif %}
-                </div>
+          {% for book in books %}
+	  <a href="{% url 'book_detail' book.pk %}">
+            <div class="book" style='display: flex;'>
+              {% if book.cover_picture %}
+              <img src="{{ book.cover_picture.url }}" alt="{{ book.title }}" style="max-width: 200px; height: auto;">
+              {% else %}
+              <p>No cover image available</p>
+              {% endif %}
+	      <div id='book-list-info' style='padding:10px;'>
+	      <h2>{{ book.title }}</h2>
+	      <h4>{{ book.authors}}</h4>
+	      <h4>{{ book.selling_price }}</h4>
+	      <!-- Add a link to add to cart here -->
+	      </div>
+            </div>
+	    </a>
             {% endfor %}
         </div>
     {% else %}

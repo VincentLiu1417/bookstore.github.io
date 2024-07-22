@@ -7,7 +7,7 @@
 <body>
   <p>
     {% if user.is_authenticated %}
-    Hi, {{user.username}}
+    Hi, <a href="{% url 'profile' %}">{{user.username}}</a>
     <form method="post" action="{% url 'logout' %}">
       {% csrf_token %}
       <button type="submit">Logout</button>
@@ -16,7 +16,9 @@
     Hi, guest
     <a href="{% url 'login' %}">Login</a> or <a href="{% url 'register' %}">Sign up</a>
     {% endif %}
+    
   </p>
+  <a href="{% url 'view_cart' %}"><div style='padding: 10px; border: 1px solid gray; border-radius: 8px; max-width: 85px'><p>Shopping Cart</p></div></a>
   <h1>Welcome to team3books</h1>
   <h2>Featured Books</h2>
     <ul style='display: flex; '>

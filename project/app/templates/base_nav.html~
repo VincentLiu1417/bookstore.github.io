@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}team3books{% endblock %}
+
+{% block content %}
+<nav id='navbar'>
+  <!-- Logo and link to home -->
+  
+  <!-- Search bar  -->
+  
+</nav>
+
+<footer id='default-footer' >
+  {% block footer %}
+  <p>Thanks for stopping by!</p>
+  <p>Have any questions? Meow at us!</p>
+  
+  {% endblock %}
+</footer>
+
+{% endblock %}
+

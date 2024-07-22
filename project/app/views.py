@@ -22,7 +22,7 @@ from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.db.models import Q
 import random
-
+from .utils import get_user_backend
 User = get_user_model()
 
 def home(request):
@@ -57,6 +57,15 @@ def book_detail(request, pk):
     book = get_object_or_404(Book, pk=pk)
     return render(request, 'book_detail.html', {'book': book})
 
+@login_required(login_url='/login/')
+def add_to_cart(request, book_id):
+    messages.success(request, "Added to cart!")
+    return redirect(reverse('book_detail', args=[book_id]))
+
+@login_required(login_url='/login/')
+def view_cart(request):
+    return render(request, 'view_cart.html')
+
 def user_is_admin(user):
     return user.is_admin
 
@@ -67,7 +76,7 @@ def add_book(request):
         form = BookForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
-            return redirect('books_list')
+            return redirect('book_list')
     else:
         form = BookForm()
     return render(request, 'add_book.html', {'form': form})
@@ -209,8 +218,10 @@ def activate(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_verified = True
         user.save()
-        login(request, user)
-        return redirect('')
+        backend = get_user_backend(user)
+        if backend:
+            login(request, user, backend=backend)
+        return redirect('home')
     else:
         return render(request, 'registration/activation_invalid.html')
 
