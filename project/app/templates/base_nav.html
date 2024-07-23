@@ -5,18 +5,34 @@
 {% block content %}
 <nav id='navbar'>
   <!-- Logo and link to home -->
-  
+  <div id='nav-upper'>
+    <a href='#'>Logo</a>
+    
+    <form id='search-form'>
+      <input class='search-bar' type='text' placeholder='Search by Title, Author, or ISBN'>
+      <input class='search-btn' type='submit' value='Search'>
+    </form>
+    <div id='nav-cart-login'>
+      <a href='#'>Shopping Cart</a>
+      <a href='#'>Login / Sign Up</a>
+    </div>
+  </div>
+  <div id='nav-lower'>
+    <a class='nav-link off-center-underline' href="{% url 'book_list' %}">Books</a>
+    <a class='nav-link off-center-underline' href='#'>Fiction</a>
+    <a class='nav-link off-center-underline' href='#'>Nonfiction</a>
+    <a class='nav-link off-center-underline' href='#'>Teen</a>
+    <a class='nav-link off-center-underline' href='#'>Kids</a>
+    <a class='nav-link off-center-underline' href='#'>Manga</a>
+  </div>
   <!-- Search bar  -->
   
 </nav>
 
-<footer id='default-footer' >
-  {% block footer %}
-  <p>Thanks for stopping by!</p>
-  <p>Have any questions? Meow at us!</p>
-  <!-- Finish the footer bar -->
-  {% endblock %}
-</footer>
+<div id='main-content'>
+  {% block maincontent %}
+  {% endblock maincontent %}
+</div>
 
-{% endblock %}
+{% endblock content %}
 

@@ -36,7 +36,7 @@ def home(request):
         'featured_books' : featured_books,
         'new_arrivals_books': new_arrivals_books,
     }
-    return render(request, 'home.html', context)
+    return render(request, 'home_template.html', context)
 
 def book_list(request):
     form = BookSearchForm(request.GET or None)

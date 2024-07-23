@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu&display=swap');
+
+* {
+    margin: 0px;
+    background-color: #FDFBE4;
+    font-family: 'Gaegu', sans-serif;
+}
+
+
+#footer-info {
+    display: flex;
+    justify-content: space-between;
+    border: 1px solid black; /* dev purpose - mod later */
+}
+
+
+#nav-upper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+#nav-lower {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid black; /* dev purpose - delete later */
+    padding: 10px;
+}
+
+#home-welcome-msg {
+    display: flex;
+    justify-content: center;
+}
+
+.book-ls-label {
+    display: flex;
+    justify-content: center;
+}
+
+
+#search-form {
+    
+}
+
+.search-bar {
+    background-color: white;
+    width: 300px;
+    height: 30px;
+    padding: 10px;
+    margin-left: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    /* outline: none; */
+}
+
+.search-btn {
+    background-color: #A35950;
+    color: #FFFFFF;
+    width: 100px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+#nav-cart-login {
+    display: flex;
+    justify-content: space-between;
+}
+
+#nav-cart-login a {
+    margin-right: 40px;
+}
+
+.nav-link {
+    font-size: 22px;
+    color: #322829;
+    position: relative;
+    text-decoration: none;
+}
+
+.nav-link:after {
+    position: absolute;
+    height: 5px;
+    margin: 0 auto;
+    content: '';
+    left: 0;
+    right: -200;
+    width: 80%;
+    color: #322829;
+    background-color: #322829;
+    left: 0;
+    bottom: -4px;
+
+	  
+}
+
+
+/*
+.off-center-ul {
+    position: relative;
+    display: inline-block;
+}
+
+.off-center-underline::after {
+    content:'';
+    position: absolute;
+    left: 10%;
+    right: 10%;
+    bottom: -5px;
+    height:2px;
+    background-color: #322829;
+}
+*/
