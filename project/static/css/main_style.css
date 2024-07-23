@@ -7,12 +7,6 @@
 }
 
 
-#footer-info {
-    display: flex;
-    justify-content: space-between;
-    border: 1px solid black; /* dev purpose - mod later */
-}
-
 
 #nav-upper {
     display: flex;
@@ -75,7 +69,7 @@
 }
 
 .nav-link {
-    font-size: 22px;
+    font-size: 32px;
     color: #322829;
     position: relative;
     text-decoration: none;
@@ -93,24 +87,63 @@
     background-color: #322829;
     left: 0;
     bottom: -4px;
-
-	  
 }
 
+.book-panel {
+    display: flex;
+    list-style-type: none;
+    padding: 15px;
+    justify-content: space-around;
+}
+
+.book-card-home img {
+    max-height: 120px;
+}
+
+#footer * {
+    background-color: #A35950;
+    color: #FFF;
+}
+
+#footer-hero {
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
+#footer-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-subinfo {
+    text-align: center;
+}
+
+#footer-txt {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    height: 20px;
+    width: 50px;
+    
+}
+
+# footer-submit-btn {
+    background-color: #322829;
+    color: #fff;
+    
+}
 
 /*
-.off-center-ul {
-    position: relative;
-    display: inline-block;
+.book-card-txt {
+    text-align: center;
 }
 
-.off-center-underline::after {
-    content:'';
-    position: absolute;
-    left: 10%;
-    right: 10%;
-    bottom: -5px;
-    height:2px;
-    background-color: #322829;
+.book-card-home {
+    margin: 0px auto;
+}
+
+.book-card-li {    
 }
 */
+/*

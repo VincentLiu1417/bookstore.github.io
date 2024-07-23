@@ -17,7 +17,7 @@
     
     <!--	<script src="index.js"></script> -->
 
-    <footer>
+    <footer id='footer'>
       {%block footer%}
 
       <div id='footer-hero'>
@@ -25,12 +25,12 @@
       </div>
 
       <div id='footer-info'>
-	<div id='footer-contact-info'>
+	<div class='footer-subinfo' id='footer-contact-info'>
 	  <p>Have any questions? Meow at us.</p>
 	  <p>123 - 456 - 7890</p>
 	  <p>team3books@gmail.com</p>
 	</div>
-	<div id='footer-socials'>
+	<div class='footer-subinfo' id='footer-socials'>
 	  <p>Socials</p>
 	  <div id='footer-social-logos'>
 	    <!-- replace these with svg logo artifacts. -->
@@ -41,11 +41,11 @@
 	  </div>
 	</div>
 
-	<div id='footer-newsletter'>
+	<div class='footer-subinfo' id='footer-newsletter'>
 	  <p>Sign up for our newsletter</p>
 	  <form action='#' id='footer-newsletter-signup'>
-	    <input type='email' action='#'>
-	    <input type='submit' value='Sign Up'>
+	    <input id='footer-txt' type='email' action='#'>
+	    <input id='footer-submit-btn' type='submit' value='Sign Up'>
 	  </form>
 	</div>
       </div>
