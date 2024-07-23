@@ -1,4 +1,5 @@
 {% load static %}
+{% load svg_icons %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -34,17 +35,25 @@
 	  <p>Socials</p>
 	  <div id='footer-social-logos'>
 	    <!-- replace these with svg logo artifacts. -->
-	    <a href='#'>Instagram</a>
-	    <a href='#'>Facebook</a>
-	    <a href='#'>TikTok</a>
-	    <a href='#'>X</a>
+	    <a href='#' target='_blank'>
+	      <img src="{% svg_icon 'instagram'%}" alt='Instagram' class='social-logo' style='width:20px; height:20px;'>
+	    </a>
+	    <a href='#'>
+	      <img src="{% svg_icon 'facebook' %}" alt='Facebook'  class='social-logo'>
+	    </a>
+	    <a href='#'>
+	      <img src="{% svg_icon 'tiktok'%}" alt='TikTok' class='social-logo'>
+	    </a>
+	    <a href='#'>
+	      <img src="{% svg_icon 'twitter'%}" alt='Twitter/X' class='social-logo'>
+	    </a>
 	  </div>
 	</div>
 
 	<div class='footer-subinfo' id='footer-newsletter'>
 	  <p>Sign up for our newsletter</p>
 	  <form action='#' id='footer-newsletter-signup'>
-	    <input id='footer-txt' type='email' action='#'>
+	    <input id='footer-txt' type='email' action='#' placeholder='email'> <br>
 	    <input id='footer-submit-btn' type='submit' value='Sign Up'>
 	  </form>
 	</div>

@@ -7,14 +7,31 @@
   <!-- Logo and link to home -->
   <div id='nav-upper'>
     <a href='#'>Logo</a>
-    
+<!--    
     <form id='search-form'>
       <input class='search-bar' type='text' placeholder='Search by Title, Author, or ISBN'>
       <input class='search-btn' type='submit' value='Search'>
     </form>
+    -->
+    <form id='search-form' method="get" action="{% url 'book_list' %}">
+      {% csrf_token %}
+      {{ search_form.query.errors }}
+      {{ search_form.query}}
+      
+  <button type="submit">Search</button>
+</form>
+
     <div id='nav-cart-login'>
       <a href='#'>Shopping Cart</a>
-      <a href='#'>Login / Sign Up</a>
+      {% if user.is_authenticated %}
+      <p>Hi, </p><a href="{% url 'profile' %}">{{user.username}}</a>
+      <form method='post' action="{% url 'logout' %}">
+	{% csrf_token %}
+	<button type='submit' class='logout-btn'>Logout</button>
+      </form>
+      {% else %}
+      <p>Hi, guest<a href="{% url 'login_page'%}">Login</a> or <a href="{% url 'register' %}">Sign Up</a></p>
+      {% endif %}
     </div>
   </div>
   <div id='nav-lower'>
@@ -33,6 +50,4 @@
   {% block maincontent %}
   {% endblock maincontent %}
 </div>
-
 {% endblock content %}
-

@@ -128,10 +128,110 @@
     
 }
 
-# footer-submit-btn {
+#footer-submit-btn {
     background-color: #322829;
     color: #fff;
-    
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    margin-top: 10px;
+}
+
+.social-logo {
+    width: 20px;
+    height: 20px;
+    color: white;
+}
+
+.registration-container {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border 1px solid #ccc;
+    border-radius: 2px;
+    background-color: #A35950;
+    margin-top: 50px;
+    margin-bottom: 160px;
+}
+
+.registration-container h1 {
+    background-color: #A35950;
+    color: #fff;
+}
+
+.registration-form {
+    background-color: #A35950;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    background-color: #A35950;
+    color: #fff;
+}
+
+.form-group * {
+    background-color: #A35950;
+}
+
+
+.custom-input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-sizing: border-box;
+    font-size: 22px;
+    background-color: #FDFBE4;
+}
+
+.custom-input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+
+.registration-btn {
+    display: inline-block;
+    font-weight: 400;
+    color: #fff;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    border: 1px solid transparent;
+    background-color: #322829;
+    border-color: #ccc;
+    padding: 10px;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+    font-size: 22px;
+    transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.registration-btn:hover {
+    color: #fff;
+    background-color: #0056b3;
+    border-color: #004085;
+}
+
+.btn-swap {
+    background-color: #A35950;
+    display: flex;
+    justify-content: space-between;
+}
+
+.btn-swap a {
+    background-color: #A35950;
+    margin-top: 10px;
+    text-decoration: underline;
+    color: #322829;
+    font-size: 18px;
+}
+
+#email-msg-container {
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+    justify-content: center;
 }
 
 /*
@@ -140,7 +240,7 @@
 }
 
 .book-card-home {
-    margin: 0px auto;
+   margin: 0px auto;
 }
 
 .book-card-li {    

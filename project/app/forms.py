@@ -9,7 +9,7 @@ from django.contrib.sites.shortcuts import get_current_site
 
 class BookSearchForm(forms.Form):
     query = forms.CharField(required=False,
-                            widget=forms.TextInput(attrs={'placeholder': 'Search by title, author, ISBN, or category'}))
+                            widget=forms.TextInput(attrs={'class': 'search-bar','placeholder': 'Search by title, author, ISBN, or category'}))
 
 class BookForm(forms.ModelForm):
     class Meta:
@@ -61,24 +61,47 @@ class CustomPasswordResetForm(PasswordResetForm):
             )
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(label='Email or Username')
-
+    username = forms.CharField(label='Email or Username', widget=forms.TextInput(attrs={
+        'class': 'custom-input',
+        'placeholder': 'Email or Username'
+    }))
+    password = forms.CharField(
+        label = 'Password',
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'custom-input',
+                'placeholder': 'Password'
+            }
+        )
+    )
+    
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    username = forms.CharField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
-    phone = forms.CharField(required=False)
-    address = forms.CharField(required=False)
-    state = forms.CharField(required=False)
-    city = forms.CharField(required=False)
-    zip = forms.CharField(required=False)
-    cc_number = forms.CharField(required=False)
-    cc_name = forms.CharField(required=False)
-    cc_exp = forms.CharField(required=False)
-    cvc = forms.CharField(required=False)
+    email = forms.EmailField(required=True,
+                             widget=forms.EmailInput(attrs={'class': 'custom-input', 'placeholder': 'Email (Required)'}))
+    username = forms.CharField(required=True,
+                               widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Username (Required)'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'First name (Required)'}))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Last name (Required)'}))
+    phone = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Phone number (Required)'}))
+    address = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Street Address'}))
+    state = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'State'}))
+    city = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'City'}))
+    zip = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Zip Code'}))
+    cc_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Credit card number'}))
+    cc_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Name'}))
+    cc_exp = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Expiry'}))
+    cvc = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CVC'}))
     # is_subscribed = forms.BooleanField(required=False)
+
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={'class': 'custom-input', 'placeholder': 'Password'})
+    )
+    password2 = forms.CharField(
+        label='Confirm Password',
+        widget=forms.PasswordInput(attrs={'class': 'custom-input', 'placeholder': 'Confirm Password'})
+    )
 
     # TODO - add is_subscribed
     class Meta:

@@ -1,17 +1,12 @@
 <!-- book_list.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Book List</title>
-</head>
-<body>
-    <h1>Books</h1>
+{% extends "base_nav.html"%}
+{% block title %}Books{% endblock title%}
+{% block maincontent %}
 
-    <!-- Search Form -->
-    <form method="get" action="{% url 'book_list' %}">
-        {{ form.as_p }}
-        <button type="submit">Search</button>
-    </form>
+<form method="get" action="{% url 'book_list' %}">
+  {{ form.as_p }}
+  <button type="submit">Search</button>
+</form>
 
     <!-- Display Books -->
     {% if books %}
@@ -34,8 +29,7 @@
 	    </a>
             {% endfor %}
         </div>
-    {% else %}
+	{% else %}
         <p>No books found.</p>
     {% endif %}
-</body>
-</html>
+{% endblock maincontent%}
