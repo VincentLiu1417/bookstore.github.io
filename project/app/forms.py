@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
-from .models import CustomUser, Book
+from .models import CustomUser, Book, PaymentInfo
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -103,10 +103,10 @@ class CustomUserCreationForm(UserCreationForm):
     state = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'State'}))
     city = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'City'}))
     zip = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Zip Code'}))
-    cc_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Credit card number'}))
-    cc_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Name'}))
-    cc_exp = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Expiry'}))
-    cvc = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CVC'}))
+#    cc_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Credit card number'}))
+ #   cc_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Name'}))
+  #  cc_exp = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Expiry'}))
+   # cvc = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CVC'}))
     # is_subscribed = forms.BooleanField(required=False)
 
     password1 = forms.CharField(
@@ -121,14 +121,21 @@ class CustomUserCreationForm(UserCreationForm):
     # TODO - add is_subscribed
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'phone', 'address', 'state', 'zip', 'cc_number', 'cc_name', 'cc_exp', 'cvc')
+        fields = ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'phone', 'address', 'state', 'zip')
 class UserProfileUpdateForm(UserChangeForm):
     password = None # exclude the password from the form
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'zip', 'cc_num', 'cc_name', 'cc_expiry', 'cvc')
+        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'zip')
         widgets = {
             'address' : forms.Textarea(attrs={'rows': 1, 'cols': 40}),
         }
         def clean_email(self):
             return self.instance.email # treat it as property that cannot be changed.
+
+class PaymentInfoForm(forms.ModelForm):
+    class Meta:
+        model = PaymentInfo
+        fields = ['card_number', 'expiration_date', 'cvv']
+
+        

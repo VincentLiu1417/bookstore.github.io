@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm
+from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -10,7 +10,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from .tokens import account_activation_token
-from .models import CustomUser, Book
+from .models import CustomUser, Book, PaymentInfo
 from django.conf import settings
 from django.contrib.auth.views import LoginView, PasswordResetConfirmView
 from django.contrib.auth import logout
@@ -244,17 +244,26 @@ def email_verification_sent(request):
     
 def register(request):
     if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
+        user_form = CustomUserCreationForm(request.POST)
+        payment_form = PaymentInfoForm(request.POST)
+        
+        if user_form.is_valid() and payment_form.is_valid:
+            user = user_form.save(commit=False)
             user.is_verified = False
             user.save()
             # verification email -- implement
             send_verification_email(request, user)
+
+            payment_info = payment_form.save(commit=False)
+            payment_info.user = user
+            payment_info.save()
             return redirect('email_verification_sent')
+        
     else:
-        form = CustomUserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
+        user_form = CustomUserCreationForm()
+        payment_form = PaymentInfoForm()
+    return render(request, 'registration/register.html', {'user_form': user_form,
+                                                          'payment_form': payment_form})
 
 
 @login_required
@@ -289,6 +298,48 @@ def payment_methods(request):
 class CustomLoginView(LoginView):
     authentication_form = CustomAuthenticationForm
     template_name = 'registration/login.html'
+
+@login_required
+def payment_info_list(request):
+    payment_methods = request.user.payment_methods.all()
+    return render(request, 'payment_info_list.html', {'payment_methods': payment_methods})
+
+@login_required
+def add_payment_info(request):
+    if request.method == 'POST':
+        form = PaymentInfoForm(request.POST)
+        if form.is_valid():
+            payment_info = form.save(commit=False)
+            payment_info.user = request.user
+            payment_info.save()
+            messages.success(request, 'Payment method added successfully.')
+            return redirect('payment_info_list')
+    else:
+        form = PaymentInfoForm()
+    return render(request, 'add_payment_info.html', {'form': form})
+
+@login_required
+def update_payment_info(request, pk):
+    payment_info = get_object_or_404(PaymentInfo, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = PaymentInfoForm(request.POST, instance=payment_info)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Payment method updated successfully.')
+            return redirect('payment_info_list')
+    else:
+        form = PaymentInfoForm(instance=payment_info)
+    return render(request, 'update_payment_info.html', {'form': form})
+
+@login_required
+def delete_payment_info(request, pk):
+    payment_info = get_object_or_404(PaymentInfo, pk=pk, user=request.user)
+    if request.method == 'POST':
+        payment_info.delete()
+        messages.success(request, 'Payment method deleted successfully.')
+        return redirect('payment_info_list')
+    return render(request, 'delete_payment_info.html', {'payment_info': payment_info})
+
 '''
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     form_class = CustomSetPasswordForm

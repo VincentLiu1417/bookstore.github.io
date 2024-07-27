@@ -1,0 +1,13 @@
+{% extends 'bast_nav.html' %}
+{% load static %}
+{% block title %}Add Payment{% endblock title %}
+{% block maincontent %}
+<div class='add-pmt-container'>
+  <h2>Add Payment Method</h2>
+  <form method='post'>
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type='submit'>Add</button>
+  </form>
+</div>
+{% endblock maincontent %}

@@ -46,19 +46,20 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     state = models.CharField(max_length=13, blank=True, null=True) # add validator
     city = models.CharField(max_length=25, blank=True, null=True)
     zip = models.CharField(max_length=5, blank=True, null=True)
-    cc_num = models.CharField(max_length=16, blank=True, null=True) # add validator
-    cc_name = models.CharField(max_length=100, blank=True, null=True) # add validator
-    cc_expiry = models.CharField(max_length=5, blank=True, null=True) # add val
-    cvc = models.CharField(max_length=3, blank=True, null=True)
+#    cc_num = models.CharField(max_length=16, blank=True, null=True) # add validator
+ #   cc_name = models.CharField(max_length=100, blank=True, null=True) # add validator
+ #  cc_expiry = models.CharField(max_length=5, blank=True, null=True) # add val
+  #  cvc = models.CharField(max_length=3, blank=True, null=True)
     is_verified = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     is_suspended = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
+    #is_subscribed = models.BooleanField(default=True)
 
     objects = CustomUserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['username', 'first_name', 'last_name', 'phone']
 
     def __str__(self):
         return self.email
@@ -66,3 +67,26 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+class Cart(models.Model):
+    pass
+
+class CartItem(models.Model):
+    pass
+
+class ShippingBillingInfo(models.Model):
+    pass
+
+class PaymentInfo(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_methods')
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.CharField(max_length=5)
+    cvv = models.CharField(max_length=6)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.card_number}'
+    
+
+class Promotion(models.Model):
+    pass
+    
