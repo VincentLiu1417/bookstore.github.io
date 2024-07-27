@@ -234,6 +234,40 @@
     justify-content: center;
 }
 
+.book-li-entry {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 15px;
+    padding-top: 15px;
+}
+
+.book-list {
+    margin-top: 10px;
+}
+
+.book-li-img {
+    margin-left: 40px;
+}
+
+.book-li-info {
+    text-decoration: none !important;
+    padding: 10px;
+}
+
+.bool-li-info h1 {
+    font-size: 32px;
+}
+
+.user-info {
+}
+
+.user-info-options {
+}
+
+.user-info-options ul {
+    list-style-type: none;
+}
+
 /*
 .book-card-txt {
     text-align: center;

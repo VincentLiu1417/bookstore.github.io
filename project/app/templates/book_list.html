@@ -3,26 +3,29 @@
 {% block title %}Books{% endblock title%}
 {% block maincontent %}
 
+<!-- OG Form
 <form method="get" action="{% url 'book_list' %}">
   {{ form.as_p }}
   <button type="submit">Search</button>
 </form>
-
+-->
     <!-- Display Books -->
     {% if books %}
         <div class="book-list">
           {% for book in books %}
 	  <a href="{% url 'book_detail' book.pk %}">
-            <div class="book" style='display: flex;'>
+            <div class='book-li-entry'>
+	      <div class='book-li-img'>
               {% if book.cover_picture %}
               <img src="{{ book.cover_picture.url }}" alt="{{ book.title }}" style="max-width: 200px; height: auto;">
               {% else %}
               <p>No cover image available</p>
               {% endif %}
-	      <div id='book-list-info' style='padding:10px;'>
-	      <h2>{{ book.title }}</h2>
-	      <h4>{{ book.authors}}</h4>
-	      <h4>{{ book.selling_price }}</h4>
+	      </div>
+	      <div class='book-li-info'>
+		<h2>{{ book.title }}</h2>
+		<h4>{{ book.authors}}</h4>
+		<h4>{{ book.selling_price }}</h4>
 	      <!-- Add a link to add to cart here -->
 	      </div>
             </div>

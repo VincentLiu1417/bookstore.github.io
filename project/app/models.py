@@ -4,6 +4,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 
 class Book(models.Model):
+#    id = models.BigAutoField(primary_key=True)
     isbn = models.CharField(max_length=13, unique=True) # validate
     authors = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
@@ -35,6 +36,7 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, username, first_name, last_name, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+#    id = models.BigAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=50)
