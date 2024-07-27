@@ -1,9 +1,13 @@
-
-{% extends "./base_nav.html" %}
-
-{% block title %}{{ book.title }}{% endblock title %}
-
-{% block maincontent %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }}</title>
+   
+</head>
+<body>
+  <div style='display: flex; padding: 20px;'>
     {% if book.cover_picture %}
         <img src="{{ book.cover_picture.url }}" alt="{{ book.title }}" style="max-width: 300px; height: auto;">
     {% else %}
@@ -30,5 +34,6 @@
 	  <p>Publication year: {{ book.publication_year }}</p>
 	</div>
   </div>
-<p><a href="{% url 'book_list' %}">Back to Book List</a></p>
-{% endblock maincontent %}
+    <p><a href="{% url 'book_list' %}">Back to Book List</a></p>
+</body>
+</html>

@@ -1,38 +1,15 @@
-{% extends "../base_nav.html" %}
-{% load static %}
 <!-- templates/registration/login.html -->
-<!-- Commenting out the O.G. Form
-
-<h2>Login</h2>
-<form method="POST">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Login</button>
-</form>
-
--->
-{% block title %}Login{% endblock title%}
-{% block maincontent %}
-<div class='registration-container'>
-  <h1>Login</h1>
-  <form method='post' class='registration-form'>
-    {% csrf_token %}
-    <div class='form-group'>
-      {{ form.username.label_tag }}
-      {{ form.username.errors }}
-      {{ form.username }}
-    </div>
-    <div class='form-group'>
-      {{ form.password.label_tag }}
-      {{ form.password.errors }}
-      {{ form.password }}
-    </div>
-    <div class='btn-swap'>
-      <button type='submit' class='registration-btn'>Login</button>
-      <a href="{% url 'register' %}">Or Sign Up!</a>
-    </div>
-  </form>
-
-  
-</div>
-{% endblock maincontent%}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Order Confirmation</title>
+</head>
+<body>
+    <div class="OrderConfirmation">
+        <h1>Order Confirmation</h1>
+        <div>Order Total: ${{ cart.get_total_price }}</div>
+        <div>Shipping Address: {{ cart.shippingbillinginfo.address }}</div>
+        <div>Payment Method: {{ cart.paymentinfo.card_number }}</div>
+    </div>
+</body>
+</html>

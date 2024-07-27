@@ -4,7 +4,6 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 
 
 class Book(models.Model):
-#    id = models.BigAutoField(primary_key=True)
     isbn = models.CharField(max_length=13, unique=True) # validate
     authors = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
@@ -36,7 +35,6 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, username, first_name, last_name, password, **extra_fields)
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-#    id = models.BigAutoField(primary_key=True)
     email = models.EmailField(unique=True)
     username = models.CharField(max_length=50, unique=True)
     first_name = models.CharField(max_length=50)
@@ -66,3 +64,50 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     @property
     def is_staff(self):
         return self.is_admin
+
+class Cart(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    promotion = models.ForeignKey('Promotion', on_delete=models.SET_NULL, null=True, blank=True)
+
+    def apply_promotion(self, promotion):
+        self.promotion = promotion
+        self.save()
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+    def update_quantity(self, quantity):
+        self.quantity = quantity
+        self.save()
+        
+class ShippingBillingInfo(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.address}'
+
+class PaymentInfo(models.Model):
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    card_number = models.CharField(max_length=16)
+    expiration_date = models.CharField(max_length=5)
+    cvv = models.CharField(max_length=3)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.card_number}'
+
+class Promotion(models.Model):
+    code = models.CharField(max_length=50, unique=True)
+    discount = models.DecimalField(max_digits=5, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
