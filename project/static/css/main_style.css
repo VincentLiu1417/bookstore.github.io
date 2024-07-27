@@ -7,6 +7,12 @@
 }
 
 
+.add-book-container {
+    max-width: 400px;
+    margin: 30px;
+}
+
+
 
 #nav-upper {
     display: flex;
@@ -256,12 +262,6 @@
 
 .bool-li-info h1 {
     font-size: 32px;
-}
-
-.user-info {
-}
-
-.user-info-options {
 }
 
 .user-info-options ul {

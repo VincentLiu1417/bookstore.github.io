@@ -1,11 +1,8 @@
 <!-- add_book.html -->
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Add Book</title>
-</head>
-<body>
+{% extends "base_nav.html" %}
+{% load static %}
+{% block title %}Add Book{% endblock title %}
+<!-- <body>
     <h2>Add Book</h2>
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
@@ -14,3 +11,71 @@
     </form>
 </body>
 </html>
+-->
+
+{% block maincontent %}
+<div class='add-book-container' style='max-width: 400px; display: flex; justify-content: center; padding-left: 10px; padding-right: 10px;'>
+<form method='post' enctype='multipart/form-data'>
+  <div class='form-group'>
+    {{ form.isbn.label_tag }}
+    {{ form.isbn.errors }}
+    {{ form.isbn }}
+  </div>
+  <div class='form-group'>
+    {{ form.authors.label_tag }}
+    {{ form.authors.errors }}
+    {{ form.authors }}
+  </div>
+  <div class='form-group'>
+    {{ form.category.label_tag }}
+    {{ form.category.errors }}
+    {{ form.category }}
+  </div>
+  <div class='form-group'>
+    {{ form.title.label_tag }}
+    {{ form.title.errors }}
+    {{ form.title }}
+  </div>
+  <div class='form-group'>
+    {{ form.cover_picture.label_tag }}
+    {{ form.cover_picture.errors }}
+    {{ form.cover_picture }}
+  </div>
+  <div class='form-group'>
+    {{ form.edition.label_tag }}
+    {{ form.edition.errors }}
+    {{ form.edition }}
+  </div>
+  <div class='form-group'>
+    {{ form.publisher.label_tag }}
+    {{ form.publisher.errors }}
+    {{ form.publisher }}
+  </div>
+  <div class='form-group'>
+    {{ form.publication_year.label_tag }}
+    {{ form.publication_year.errors }}
+    {{ form.publication_year }}
+  </div>
+  <div class='form-group'>
+    {{ form.quantity_in_stock.label_tag }}
+    {{ form.quantity_in_stock.errors }}
+    {{ form.quantity_in_stock }}
+  </div>
+  <div class='form-group'>
+    {{ form.minimum_threshold.label_tag }}
+    {{ form.minimum_threshold.errors }}
+    {{ form.minimum_threshold }}
+  </div>
+  <div class='form-group'>
+    {{ form.buying_price.label_tag }}
+    {{ form.buying_price.errors }}
+    {{ form.buying_price }}
+  </div>
+  <div class='form-group'>
+    {{ form.selling_price.label_tag }}
+    {{ form.selling_price.errors }}
+    {{ form.selling_price }}
+  </div>
+</form>
+</div>
+{% endblock maincontent %}

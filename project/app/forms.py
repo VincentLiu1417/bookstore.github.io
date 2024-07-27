@@ -15,6 +15,21 @@ class BookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = '__all__'
+        widgets = {
+            # YOU are here ...
+            'isbn': forms.TextInput(attrs={'class': 'custom-input', 'label': 'ISBN', 'placeholder': 'ISBN'}),
+            'authors': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Author(s)', 'placeholder': 'Author(s)'}),
+            'category': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Category'}),
+            'title': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Title', 'placeholder': 'Title'}),
+            'cover_picture': forms.ClearableFileInput(attrs={'class': 'custom-input', 'label': 'Cover Art'}),
+            'edition': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Edition'}),
+            'publisher': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Publisher'}),
+            'publication_year': forms.TextInput(attrs={'class': 'custom-input', 'label':'Publication Year', 'placeholder': 'YYYY'}),
+            'quantity_in_stock': forms.TextInput(attrs={'class': 'custom-input', 'label':'Quantity'}),
+            'minimum_threshold': forms.TextInput(attrs={'class': 'custom-input', 'label':'Min Threshold'}),
+            'buying_price': forms.TextInput(attrs={'class': 'custom-input', 'label':'Buy Price'}),
+            'selling_price': forms.TextInput(attrs={'class': 'custom-input', 'label':'Sell Price'}),
+        }
 
 
 '''
