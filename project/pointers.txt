@@ -1,0 +1,3 @@
+
+
+If there is an issue with DB migrations in the future, delete migration 0006 and remake migrations. If there is an issue running, fake the migration as long as the SQL is compatible. Only do this if necessary.

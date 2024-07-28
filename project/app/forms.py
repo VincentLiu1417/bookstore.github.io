@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
-from .models import CustomUser, Book, PaymentInfo
+from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, Cart
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
@@ -133,9 +133,27 @@ class UserProfileUpdateForm(UserChangeForm):
         def clean_email(self):
             return self.instance.email # treat it as property that cannot be changed.
 
-class PaymentInfoForm(forms.ModelForm):
+class PaymentInfoForm(forms.ModelForm): ## smh shouldnt have made this one
     class Meta:
         model = PaymentInfo
         fields = ['card_number', 'expiration_date', 'cvv']
 
-        
+### Nancy's ###
+class ShippingBillingForm(forms.ModelForm):
+    class Meta:
+        model = ShippingBillingInfo
+        fields = ['address', 'city', 'state', 'zip_code', 'country']
+
+class PaymentForm(forms.ModelForm):
+    class Meta:
+        model = PaymentInfo
+        fields = ['card_number', 'expiration_date', 'cvv']
+
+class PromotionCodeForm(forms.ModelForm):
+    class Meta:
+        model = Promotion
+        fields = ['code']
+class PaymentForm(forms.ModelForm): ## smh shouldnt have made this one
+    class Meta:
+        model = PaymentInfo
+        fields = ['card_number', 'expiration_date', 'cvv']

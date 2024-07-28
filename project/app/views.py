@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm
+from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm, ShippingBillingForm, PaymentForm
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -10,7 +10,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from .tokens import account_activation_token
-from .models import CustomUser, Book, PaymentInfo
+from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, CartItem, Cart
 from django.conf import settings
 from django.contrib.auth.views import LoginView, PasswordResetConfirmView
 from django.contrib.auth import logout
@@ -62,13 +62,44 @@ def add_to_cart(request, book_id):
     messages.success(request, "Added to cart!")
     return redirect(reverse('book_detail', args=[book_id]))
 
-@login_required(login_url='/login/')
-def view_cart(request):
-    return render(request, 'view_cart.html')
-
 def user_is_admin(user):
     return user.is_admin
 
+'''
+@login_required
+def update_shipping_info(request):
+    try:
+        shipping_info = ShippingBillingInfo.objects.get(user=request.user)
+    except ShippingBillingInfo.DoesNotExist:
+        shipping_info = None
+
+    if request.method == 'POST':
+        form = ShippingBillingForm(request.POST, instance=shipping_info)
+        if form.is_valid():
+            shipping_info = form.save(commit=False)
+            shipping_info.user = request.user
+            shipping_info.save()
+#            messages.success(request, 'Shipping information updated successfully!')
+            return redirect('view_cart')
+    else:
+        form = ShippingBillingForm(instance=shipping_info)
+
+    return render(request, 'update_shipping_info.html', {'form': form})
+
+'''
+"""
+@login_required
+@user_passes_test(user_is_admin)
+def manage_book(request, pk):
+    if request.method == 'POST':
+        form = BookForm(request.POST, request.FILES)
+        if form.is_valid():
+            form.save()
+            return redirect('book_list')
+        else:
+            form = BookForm()
+        return render(request, )
+"""
 @login_required
 @user_passes_test(user_is_admin)
 def add_book(request):
@@ -281,19 +312,6 @@ def profile_update(request):
 def profile(request):
     return render(request, 'registration/profile.html', {'user': request.user})
 
-@login_required
-def change_password(request):
-    '''
-    Will be used to implement the change_password use case.
-    '''
-    pass
-
-@login_required
-def payment_methods(request):
-    '''
-    Will be used to implement the change payment methods use case.
-    '''
-    pass
 
 class CustomLoginView(LoginView):
     authentication_form = CustomAuthenticationForm
@@ -312,11 +330,33 @@ def add_payment_info(request):
             payment_info = form.save(commit=False)
             payment_info.user = request.user
             payment_info.save()
-            messages.success(request, 'Payment method added successfully.')
+            #messages.success(request, 'Payment method added successfully.')
             return redirect('payment_info_list')
     else:
         form = PaymentInfoForm()
     return render(request, 'add_payment_info.html', {'form': form})
+
+
+@login_required
+def update_payment_info_nopk(request):
+    try:
+        payment_info = PaymentInfo.objects.get(user=request.user)
+    except PaymentInfo.DoesNotExist:
+        payment_info = None
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment_info)
+        if form.is_valid():
+            payment_info = form.save(commit=False)
+            payment_info.user = request.user
+            payment_info.save()
+            messages.success(request, 'Payment information updated successfully!')
+            return redirect('view_cart')
+    else:
+        form = PaymentForm(instance=payment_info)
+
+    return render(request, 'update_payment_info.html', {'form': form})
+
 
 @login_required
 def update_payment_info(request, pk):
@@ -325,7 +365,7 @@ def update_payment_info(request, pk):
         form = PaymentInfoForm(request.POST, instance=payment_info)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Payment method updated successfully.')
+            #messages.success(request, 'Payment method updated successfully.')
             return redirect('payment_info_list')
     else:
         form = PaymentInfoForm(instance=payment_info)
@@ -336,22 +376,123 @@ def delete_payment_info(request, pk):
     payment_info = get_object_or_404(PaymentInfo, pk=pk, user=request.user)
     if request.method == 'POST':
         payment_info.delete()
-        messages.success(request, 'Payment method deleted successfully.')
+#        messages.success(request, 'Payment method deleted successfully.')
         return redirect('payment_info_list')
     return render(request, 'delete_payment_info.html', {'payment_info': payment_info})
 
-'''
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    form_class = CustomSetPasswordForm
-    template_name = 'registration/password_reset_confirm.html'
+@login_required
+def view_cart(request):
+    try:
+        cart = Cart.objects.get(user=request.user)
+    except Cart.DoesNotExist:
+        cart = Cart.objects.create(user=request.user)
+    cart_items = CartItem.objects.filter(cart=cart)
+    total_price = sum(item.book.selling_price * item.quantity for item in cart_items)
+    return render(request, 'view_cart.html', {
+        'cart': cart,
+        'cart_items': cart_items,
+        'total_price': total_price,
+    })
 
-class CustomPasswordResetView(PasswordResetView):
-    form_class = CustomPasswordResetForm
-    template_name = 'registration/password_reset_form.html'
-    success_url = reverse_lazy('password_reset_done')
-    email_template_name = 'registration/password_reset_email.html'
-    subject_template_name = 'registration/password_reset_subject.txt'
-class CustomPasswordResetConfirmView(PasswordResetConfirmView):
-    template_name = 'registration/password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
-'''
+@login_required
+def add_to_cart(request, book_id):
+    book = get_object_or_404(Book, id=book_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, book=book, defaults={'quantity': 1})
+
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    messages.success(request, 'Book added to cart')
+    return redirect('view_cart')
+
+@login_required
+def update_cart_item(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    if request.method == 'POST':
+        quantity = int(request.POST.get('quantity', 1))
+        if quantity > 0:
+            cart_item.quantity = quantity
+            cart_item.save()
+        else:
+            cart_item.delete()
+    return redirect('view_cart')
+
+@login_required
+def delete_cart_item(request, item_id):
+    item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    item.delete()
+    return redirect('view_cart')
+
+@login_required
+def update_shipping_info(request):
+    try:
+        shipping_info = ShippingBillingInfo.objects.get(user=request.user)
+    except ShippingBillingInfo.DoesNotExist:
+        shipping_info = None
+
+    if request.method == 'POST':
+        form = ShippingBillingForm(request.POST, instance=shipping_info)
+        if form.is_valid():
+            shipping_info = form.save(commit=False)
+            shipping_info.user = request.user
+            shipping_info.save()
+#            messages.success(request, 'Shipping information updated successfully!')
+            return redirect('view_cart')
+    else:
+        form = ShippingBillingForm(instance=shipping_info)
+
+    return render(request, 'update_shipping_info.html', {'form': form})
+
+
+@login_required
+def checkout_test(request):
+    cart = Cart.objects.get(user=request.user)
+    saved_cards = PaymentInfo.objects.filter(user=request.user)
+    saved_shipping = ShippingBillingInfo.objects.filter(user=request.user).first()
+    if request.method == 'POST':
+        shipping_billing_form = ShippingBillingForm(request.POST)
+        payment_form = PaymentForm(request.POST)
+        if shipping_billing_form.is_valid() and payment_form.is_valid():
+            shipping_billing_info = shipping_billing_form.save(commit=False)
+            shipping_billing_info.user = request.user
+            shipping_billing_info.save()
+            payment_info = payment_form.save(commit=False)
+            payment_info.user = request.user
+            payment_info.save()
+            #messages.success(request, 'Checkout information successfully saved!')
+            return redirect('order_confirmation')
+    else:
+        shipping_billing_form = ShippingBillingForm()
+        payment_form = PaymentForm()
+
+    total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
+
+    return render(request, 'checkout_test.html', {
+        'cart': cart,
+        'shipping_billing_form': shipping_billing_form,
+        'payment_form': payment_form,
+        'saved_cards': saved_cards,
+        'saved_shipping': saved_shipping,
+        'total_price': total_price,
+    })
+
+@login_required
+def apply_promotion(request):
+    if request.method == 'POST':
+        form = PromotionCodeForm(request.POST)
+        if form.is_valid():
+            promotion_code = form.cleaned_data['code']
+            try:
+                promotion = Promotion.objects.get(code=promotion_code, is_active=True)
+                request.user.cart.apply_promotion(promotion)
+                messages.success(request, 'Promotion code applied successfully!')
+            except Promotion.DoesNotExist:
+                messages.error(request, 'Invalid promotion code.')
+    return redirect('view_cart')
+
+@login_required
+def order_confirmation(request):
+    cart = Cart.objects.get(user=request.user)
+    cart_items = CartItem.objects.filter(cart=cart)
+    return render(request, 'order_confirmation.html', {'cart': cart, 'cart_items': cart_items})

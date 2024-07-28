@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.conf import settings
 #from encrypted_model_fields.fields import EncryptedCharField
 
 
@@ -69,13 +70,33 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         return self.is_admin
 
 class Cart(models.Model):
-    pass
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    promotion = models.ForeignKey('Promotion', on_delete=models.SET_NULL, null=True, blank=True)
 
+    def apply_promotion(self, promotion):
+        self.promotion = promotion
+        self.save()
+    
 class CartItem(models.Model):
-    pass
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+    def update_quantity(self, quantity):
+        self.quantity = quantity
+        self.save()
 
 class ShippingBillingInfo(models.Model):
-    pass
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255)
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    zip_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100)
+    def __str__(self):
+        return f'{self.user.username} - {self.address}'
 
 class PaymentInfo(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_methods')
@@ -88,5 +109,21 @@ class PaymentInfo(models.Model):
     
 
 class Promotion(models.Model):
-    pass
+    code = models.CharField(max_length=50, unique=True)
+    discount = models.DecimalField(max_digits=5, decimal_places=2)
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
+    
+class Order(models.Model):
+    cart = models.ForeignKey(Cart, related_name="order", on_delete=models.PROTECT)
+    user = models.ForeignKey(CustomUser, related_name="user", on_delete=models.CASCADE)
+    instructions = models.TextField(max_length=255)
+    date = models.DateTimeField(auto_now_add=True)
+    
+    
+    def __str__(self):
+        return f"{self.user.username} order from {date}"
+    
     

@@ -22,7 +22,7 @@
 </form>
 
     <div id='nav-cart-login'>
-      <a href='#'>Shopping Cart</a>
+      <a href="{% url 'view_cart' %}">Shopping Cart</a>
       {% if user.is_authenticated %}
       <p>Hi, </p><a href="{% url 'profile' %}">{{user.username}}</a>
       <form method='post' action="{% url 'logout' %}">
