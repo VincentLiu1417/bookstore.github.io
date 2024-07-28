@@ -15,7 +15,8 @@
 
 {% block maincontent %}
 <div class='add-book-container' style='max-width: 400px; display: flex; justify-content: center; padding-left: 10px; padding-right: 10px;'>
-<form method='post' enctype='multipart/form-data'>
+  <form method='post' enctype='multipart/form-data'>
+    {% csrf_token %}
   <div class='form-group'>
     {{ form.isbn.label_tag }}
     {{ form.isbn.errors }}
@@ -76,6 +77,7 @@
     {{ form.selling_price.errors }}
     {{ form.selling_price }}
   </div>
+  <button type='submit'>Add Book</button>
 </form>
 </div>
 {% endblock maincontent %}

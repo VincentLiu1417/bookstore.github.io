@@ -1,0 +1,22 @@
+1. Add logo and route it to '/' home url
+2. Add cart image to the nav and style it appropriately
+3. Ensure that teen, kids, fiction, nonfiction can all be added and viewed appropriately.
+4. Update user model to allow users to select is_subscribed. Migrate DB changes
+5. Allow admins to create promos - send promo emails to subscribed users
+6. Add some sort of encryption to cards. Will require modifying the PaymentInfo model
+7. Create custom error pages so users see pretty 404 errors. Users should not know WHY errors occur, just that they do.
+8. Email admins when book count is below minimum threshold.
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -38,6 +38,26 @@ def home(request):
     }
     return render(request, 'home_template.html', context)
 
+def fiction(request):
+    books = Book.objects.all().filter(Q(category__icontains='fiction'))
+    return render(request, 'book_list.html', {'books': books})
+
+def nonfiction(request):
+    books = Book.objects.all().filter(Q(category__icontains='nonfiction'))
+    return render(request, 'book_list.html', {'books': books})
+
+def teen(request):
+    books = Book.objects.all().filter(Q(category__icontains='teen'))
+    return render(request, 'book_list.html', {'books': books})
+
+def kids(request):
+    books = Book.objects.all().filter(Q(category__icontains='kids'))
+    return render(request, 'book_list.html', {'books': books})
+
+def classics(request):
+    books = Book.objects.all().filter(Q(category__icontains='classics'))
+    return render(request, 'book_list.html', {'books': books})
+
 def book_list(request):
     form = BookSearchForm(request.GET or None)
     books = Book.objects.all()

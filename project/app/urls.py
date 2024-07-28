@@ -20,6 +20,12 @@ urlpatterns = [
 #    path('logout/', LogoutView.as_view(next_page='/'), name='logout')
     path('logout/', views.custom_logout_view, name='logout'),
 
+    path('classics/', views.classics, name='classics'),
+    path('kids/', views.kids, name='kids'),
+    path('teen/', views.teen, name='teen'),
+    path('fiction', views.fiction, name='fiction'),
+    path('nonfiction', views.nonfiction, name='nonfiction'),
+    
     path('reset-password', views.custom_password_reset, name='custom_password_reset'),
     path('reset-password/done/', auth_views.PasswordResetDoneView.as_view(template_name='registration/password_reset_done.html'), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', views.custom_password_reset_confirm, name='password_reset_confirm'),
