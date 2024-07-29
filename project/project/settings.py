@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages', # needed for the add to cart
+    'django.contrib.messages', 
     'django.contrib.staticfiles',
     'app',
   #  'encrypted_model_fields',

@@ -115,16 +115,15 @@ class Promotion(models.Model):
         return self.code
     
 class Order(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_number = models.CharField(max_length=12, unique=True)
     date_ordered = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     tax = models.DecimalField(max_digits=10, decimal_places=2)
-    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('5.00'))
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2)
     order_total = models.DecimalField(max_digits=10, decimal_places=2)
-    shipping_info = models.ForeignKey(ShippingBillingInfo, on_delete=models.SET_NULL, null=True)
-    payment_info = models.ForeignKey(PaymentInfo, on_delete=models.SET_NULL, null=True)
-    special_instructions = models.TextField(blank=True, null=True)
+    shipping_info = models.ForeignKey('ShippingBillingInfo', on_delete=models.SET_NULL, null=True, blank=True)
+    payment_info = models.ForeignKey('PaymentInfo', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return self.order_number

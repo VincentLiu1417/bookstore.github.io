@@ -209,11 +209,11 @@
         <form method="post" action="{% url 'checkout_test' %}">
             {% csrf_token %}
             <button type="submit" class="checkout-button">Confirm and Pay</button>
-        </form>               
+        </form>
         {% else %}
         <p>Please <a href="{% url 'login' %}">login</a> to proceed to checkout.</p>
         {% endif %}
-    </div>
+    </div>    
 </div>
 
 <!-- The Modal -->

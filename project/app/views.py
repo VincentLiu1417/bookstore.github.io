@@ -27,6 +27,7 @@ from decimal import Decimal
 from datetime import datetime
 import random
 import string
+
 User = get_user_model()
 
 def home(request):
@@ -354,79 +355,6 @@ def delete_cart_item(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     item.delete()
     return redirect('view_cart')
-
-@login_required
-def checkout_test(request):
-    cart = Cart.objects.get(user=request.user)
-    saved_cards = PaymentInfo.objects.filter(user=request.user)
-    saved_shipping = ShippingBillingInfo.objects.filter(user=request.user).first()
-
-    TAX_RATE = Decimal('0.08')
-    SHIPPING_HANDLING_FEE = Decimal('5.00')
-
-    if request.method == 'POST':
-        shipping_billing_form = ShippingBillingForm(request.POST)
-        payment_form = PaymentForm(request.POST)
-        if shipping_billing_form.is_valid() and payment_form.is_valid():
-            shipping_billing_info = shipping_billing_form.save(commit=False)
-            shipping_billing_info.user = request.user
-            shipping_billing_info.save()
-            payment_info = payment_form.save(commit=False)
-            payment_info.user = request.user
-            payment_info.save()
-
-            order_number = ''.join(random.choices(string.digits, k=12))
-            date_ordered = datetime.now().strftime("%m/%d/%Y")
-
-            total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
-            tax = total_price * TAX_RATE
-            order_total = total_price + tax + SHIPPING_HANDLING_FEE
-
-            order_data = {
-                'order_number': order_number,
-                'date_ordered': date_ordered,
-                'total': order_total,
-                'shipping_info': saved_shipping,
-                'payment_info': saved_cards.last(),
-                'cart_items': cart.cartitem_set.all(),
-                'total_price': total_price,
-                'tax': tax,
-                'shipping': SHIPPING_HANDLING_FEE,
-                'order_total': order_total,
-            }
-
-            email_subject = 'Your Order Confirmation'
-            email_body = render_to_string('order_confirmation_email.html', order_data)
-            send_mail(
-                email_subject,
-                email_body,
-                'team3books@gmail.com',
-                [request.user.email],
-                fail_silently=False,
-            )
-
-            request.session['order_data'] = order_data
-            return redirect('order_confirmation')
-
-    else:
-        shipping_billing_form = ShippingBillingForm()
-        payment_form = PaymentForm()
-
-    total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
-    tax = total_price * TAX_RATE
-    order_total = total_price + tax + SHIPPING_HANDLING_FEE
-
-    return render(request, 'checkout_test.html', {
-        'cart': cart,
-        'shipping_billing_form': shipping_billing_form,
-        'payment_form': payment_form,
-        'saved_cards': saved_cards,
-        'saved_shipping': saved_shipping,
-        'total_price': total_price,
-        'tax': tax,
-        'shipping': SHIPPING_HANDLING_FEE,
-        'order_total': order_total,
-    })
 
 @login_required
 def update_shipping_info(request):
