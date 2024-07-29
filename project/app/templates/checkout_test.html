@@ -116,19 +116,54 @@
         color: white;
         cursor: pointer;
     }
+    /* Styles for the modal */
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+        padding-top: 60px;
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 5% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 10px;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+    .close:hover,
+    .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
 </style>
 
 <div class="cart-page">
     <h1 class="cart-header">Checkout</h1>
     <div class="shipping-info summary-box">
         <h2>Shipping Information</h2>
-        <a href="{% url 'update_shipping_info' %}" class="change-link">Change</a>
+        <a href="#" class="change-link" onclick="showModal('shippingModal')">Change</a>
         <p>Delivery Address: {% if saved_shipping %}{{ saved_shipping.address }}{% else %}No shipping information saved.{% endif %}</p>
-        <a href="#">Add delivery instructions</a>
+        <p id="delivery-instructions">{% if saved_shipping and saved_shipping.delivery_instructions %}Delivery Instructions: {{ saved_shipping.delivery_instructions }} <a href="#" onclick="showModal('instructionsModal')">Edit</a>{% else %}<a href="#" id="add-instructions-link" onclick="showModal('instructionsModal')">Add delivery instructions</a>{% endif %}</p>
     </div>
     <div class="payment-info summary-box">
         <h2>Payment Information</h2>
-        <a href="{% url 'update_payment_info' %}" class="change-link">Change</a>
+        <a href="#" class="change-link" onclick="showModal('paymentModal')">Change</a>
         <p>Paying with: {% if saved_cards %}**** **** **** {{ saved_cards.last.card_number|slice:'-4:' }}{% else %}No payment information saved.{% endif %}</p>
         <a href="#">Use gift card payment</a>
     </div>
@@ -167,14 +202,122 @@
     <div class="checkout-summary">
         <h2>Checkout</h2>
         <p>Items: ${{ total_price }}</p>
-        <p>Tax: ${{ tax }}</p>
+        <p>Tax: ${{ tax|floatformat:2 }}</p>
         <p>Shipping and Handling: ${{ shipping }}</p>
-        <p>Order Total: ${{ order_total }}</p>
+        <p>Order Total: ${{ order_total|floatformat:2 }}</p>
         {% if user.is_authenticated %}
-        <a href="{% url 'checkout_test' %}" class="checkout-button">Confirm and Pay</a>
+        <form method="post" action="{% url 'checkout_test' %}">
+            {% csrf_token %}
+            <button type="submit" class="checkout-button">Confirm and Pay</button>
+        </form>               
         {% else %}
         <p>Please <a href="{% url 'login' %}">login</a> to proceed to checkout.</p>
         {% endif %}
     </div>
 </div>
+
+<!-- The Modal -->
+<div id="shippingModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hideModal('shippingModal')">&times;</span>
+        <h2>Update Shipping Information</h2>
+        <div id="shippingModal-errors"></div>
+        <form id="shippingForm" method="post" action="{% url 'update_shipping_info' %}" onsubmit="submitForm(event, 'shippingForm', 'shippingModal')">
+            {% csrf_token %}
+            {{ shipping_billing_form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</div>
+
+<!-- Payment Modal -->
+<div id="paymentModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hideModal('paymentModal')">&times;</span>
+        <h2>Update Payment Information</h2>
+        <div id="paymentModal-errors"></div>
+        <form id="paymentForm" method="post" action="{% url 'update_payment_info' %}" onsubmit="submitForm(event, 'paymentForm', 'paymentModal')">
+            {% csrf_token %}
+            {{ payment_form.as_p }}
+            <button type="submit">Save</button>
+        </form>
+    </div>
+</div>
+
+<div id="instructionsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="hideModal('instructionsModal')">&times;</span>
+        <h2>Add Delivery Instructions</h2>
+        <div id="instructionsModal-errors"></div>
+        <form id="instructionsForm" method="post" action="{% url 'add_delivery_instructions' %}" onsubmit="submitForm(event, 'instructionsForm', 'instructionsModal')">
+            {% csrf_token %}
+            <textarea id="instructions" name="instructions" maxlength="100" placeholder="Enter delivery instructions (max 100 characters)"></textarea>
+            <button type="submit">Save Instructions</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function showModal(modalId) {
+        document.getElementById(modalId).style.display = "block";
+    }
+
+    function hideModal(modalId) {
+        document.getElementById(modalId).style.display = "none";
+    }
+
+    function submitForm(event, formId, modalId) {
+        event.preventDefault();
+        var form = document.getElementById(formId);
+        var formData = new FormData(form);
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", form.action, true);
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+        xhr.onload = function () {
+            if (xhr.status === 200) {
+                var response = JSON.parse(xhr.responseText);
+                if (response.success) {
+                    hideModal(modalId);
+                    if (modalId === 'instructionsModal') {
+                        var instructionsElement = document.getElementById('delivery-instructions');
+                        if (response.instructions) {
+                            instructionsElement.innerHTML = 'Delivery Instructions: ' + response.instructions + ' <a href="#" onclick="showModal(\'instructionsModal\')">Edit</a>';
+                        } else {
+                            instructionsElement.innerHTML = '<a href="#" id="add-instructions-link" onclick="showModal(\'instructionsModal\')">Add delivery instructions</a>';
+                        }
+                    } else {
+                        location.reload();
+                    }
+                } else {
+                    var errorsDiv = document.getElementById(modalId + "-errors");
+                    errorsDiv.innerHTML = '';
+                    var errors = JSON.parse(response.errors);
+                    for (var field in errors) {
+                        for (var i = 0; i < errors[field].length; i++) {
+                            var error = errors[field][i];
+                            var errorDiv = document.createElement("div");
+                            errorDiv.innerHTML = error.message;
+                            errorsDiv.appendChild(errorDiv);
+                        }
+                    }
+                }
+            }
+        };
+        xhr.send(formData);
+    }
+
+    document.querySelectorAll('.modal .close').forEach(closeBtn => {
+        closeBtn.onclick = function () {
+            this.closest('.modal').style.display = 'none';
+        }
+    });
+
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = "none";
+        }
+    }
+</script>
+
 {% endblock maincontent %}

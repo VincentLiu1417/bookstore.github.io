@@ -30,8 +30,8 @@ urlpatterns = [
     path('cart/delete/<int:item_id>/', views.delete_cart_item, name='delete_cart_item'),
     path('checkout_test/', views.checkout_test, name='checkout_test'),
     path('apply_promotion/', views.apply_promotion, name='apply_promotion'),
-    path('order_confirmation/', views.order_confirmation, name='order_confirmation'),
-    
+    path('order_confirmation/<str:order_number>/', views.order_confirmation, name='order_confirmation'),
+
     path('admin_home/', views.admin_home, name='admin_home'),
     path('admin_manage_book/', views.admin_manage_book, name='admin_manage_book'),
     path('admin_promotions/', views.admin_promotions, name='admin_promotions'),
@@ -48,6 +48,7 @@ urlpatterns = [
     path('search_test/', views.search_test, name='search_test'),
     path('shipping_address/', views.shipping_address, name='shipping_address'),
     path('update_shipping_info/', views.update_shipping_info, name='update_shipping_info'),
+    path('add_delivery_instructions/', views.add_delivery_instructions, name='add_delivery_instructions'),
     path('update_payment_info/', views.update_payment_info, name='update_payment_info'),
 ]
 '''

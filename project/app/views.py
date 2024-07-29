@@ -5,12 +5,13 @@ from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenti
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
+from django.http import JsonResponse
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from .tokens import account_activation_token
-from .models import CustomUser, Book, Cart, CartItem, Promotion, ShippingBillingInfo, PaymentInfo
+from .models import CustomUser, Book, Cart, CartItem, Promotion, ShippingBillingInfo, PaymentInfo, Order, OrderItem
 from django.conf import settings
 from django.contrib.auth.views import LoginView, PasswordResetConfirmView
 from django.contrib.auth import logout
@@ -21,8 +22,11 @@ from django.contrib.auth.forms import PasswordResetForm
 from django.urls import reverse_lazy
 from django.contrib.auth.views import PasswordResetView, PasswordResetConfirmView
 from django.db.models import Q
-import random
 from .utils import get_user_backend
+from decimal import Decimal
+from datetime import datetime
+import random
+import string
 User = get_user_model()
 
 def home(request):
@@ -352,6 +356,79 @@ def delete_cart_item(request, item_id):
     return redirect('view_cart')
 
 @login_required
+def checkout_test(request):
+    cart = Cart.objects.get(user=request.user)
+    saved_cards = PaymentInfo.objects.filter(user=request.user)
+    saved_shipping = ShippingBillingInfo.objects.filter(user=request.user).first()
+
+    TAX_RATE = Decimal('0.08')
+    SHIPPING_HANDLING_FEE = Decimal('5.00')
+
+    if request.method == 'POST':
+        shipping_billing_form = ShippingBillingForm(request.POST)
+        payment_form = PaymentForm(request.POST)
+        if shipping_billing_form.is_valid() and payment_form.is_valid():
+            shipping_billing_info = shipping_billing_form.save(commit=False)
+            shipping_billing_info.user = request.user
+            shipping_billing_info.save()
+            payment_info = payment_form.save(commit=False)
+            payment_info.user = request.user
+            payment_info.save()
+
+            order_number = ''.join(random.choices(string.digits, k=12))
+            date_ordered = datetime.now().strftime("%m/%d/%Y")
+
+            total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
+            tax = total_price * TAX_RATE
+            order_total = total_price + tax + SHIPPING_HANDLING_FEE
+
+            order_data = {
+                'order_number': order_number,
+                'date_ordered': date_ordered,
+                'total': order_total,
+                'shipping_info': saved_shipping,
+                'payment_info': saved_cards.last(),
+                'cart_items': cart.cartitem_set.all(),
+                'total_price': total_price,
+                'tax': tax,
+                'shipping': SHIPPING_HANDLING_FEE,
+                'order_total': order_total,
+            }
+
+            email_subject = 'Your Order Confirmation'
+            email_body = render_to_string('order_confirmation_email.html', order_data)
+            send_mail(
+                email_subject,
+                email_body,
+                'team3books@gmail.com',
+                [request.user.email],
+                fail_silently=False,
+            )
+
+            request.session['order_data'] = order_data
+            return redirect('order_confirmation')
+
+    else:
+        shipping_billing_form = ShippingBillingForm()
+        payment_form = PaymentForm()
+
+    total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
+    tax = total_price * TAX_RATE
+    order_total = total_price + tax + SHIPPING_HANDLING_FEE
+
+    return render(request, 'checkout_test.html', {
+        'cart': cart,
+        'shipping_billing_form': shipping_billing_form,
+        'payment_form': payment_form,
+        'saved_cards': saved_cards,
+        'saved_shipping': saved_shipping,
+        'total_price': total_price,
+        'tax': tax,
+        'shipping': SHIPPING_HANDLING_FEE,
+        'order_total': order_total,
+    })
+
+@login_required
 def update_shipping_info(request):
     try:
         shipping_info = ShippingBillingInfo.objects.get(user=request.user)
@@ -364,8 +441,13 @@ def update_shipping_info(request):
             shipping_info = form.save(commit=False)
             shipping_info.user = request.user
             shipping_info.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             messages.success(request, 'Shipping information updated successfully!')
-            return redirect('view_cart')
+            return redirect('checkout_test')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors.as_json()})
     else:
         form = ShippingBillingForm(instance=shipping_info)
 
@@ -384,18 +466,44 @@ def update_payment_info(request):
             payment_info = form.save(commit=False)
             payment_info.user = request.user
             payment_info.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             messages.success(request, 'Payment information updated successfully!')
-            return redirect('view_cart')
+            return redirect('checkout_test')
+        else:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': form.errors.as_json()})
     else:
         form = PaymentForm(instance=payment_info)
 
     return render(request, 'update_payment_info.html', {'form': form})
 
 @login_required
+def add_delivery_instructions(request):
+    if request.method == 'POST':
+        instructions = request.POST.get('instructions', '')
+        try:
+            shipping_info = ShippingBillingInfo.objects.get(user=request.user)
+            shipping_info.delivery_instructions = instructions
+            shipping_info.save()
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'instructions': instructions})
+            messages.success(request, 'Delivery instructions added successfully!')
+        except ShippingBillingInfo.DoesNotExist:
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'errors': 'No shipping information found.'})
+            messages.error(request, 'No shipping information found. Please update your shipping information first.')
+    return redirect('checkout_test')
+
+@login_required
 def checkout_test(request):
     cart = Cart.objects.get(user=request.user)
     saved_cards = PaymentInfo.objects.filter(user=request.user)
     saved_shipping = ShippingBillingInfo.objects.filter(user=request.user).first()
+
+    TAX_RATE = Decimal('0.08')
+    SHIPPING_HANDLING_FEE = Decimal('5.00')
+
     if request.method == 'POST':
         shipping_billing_form = ShippingBillingForm(request.POST)
         payment_form = PaymentForm(request.POST)
@@ -406,13 +514,55 @@ def checkout_test(request):
             payment_info = payment_form.save(commit=False)
             payment_info.user = request.user
             payment_info.save()
-            messages.success(request, 'Checkout information successfully saved!')
-            return redirect('order_confirmation')
+
+            order_number = ''.join(random.choices(string.digits, k=12))
+            date_ordered = datetime.now().strftime("%m/%d/%Y")
+
+            total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
+            tax = total_price * TAX_RATE
+            order_total = total_price + tax + SHIPPING_HANDLING_FEE
+
+            order = Order.objects.create(
+                user=request.user,
+                order_number=order_number,
+                total_price=total_price,
+                tax=tax,
+                shipping_fee=SHIPPING_HANDLING_FEE,
+                order_total=order_total,
+                shipping_info=saved_shipping,
+                payment_info=saved_cards.last()
+            )
+
+            for item in cart.cartitem_set.all():
+                OrderItem.objects.create(
+                    order=order,
+                    book=item.book,
+                    quantity=item.quantity
+                )
+
+            order_data = {
+                'order_number': order.order_number,
+                'date_ordered': date_ordered,
+                'total': order.order_total,
+                'shipping_info': order.shipping_info,
+                'payment_info': order.payment_info,
+                'cart_items': cart.cartitem_set.all(),
+                'total_price': total_price,
+                'tax': tax,
+                'shipping': SHIPPING_HANDLING_FEE,
+                'order_total': order_total,
+            }
+
+            request.session['order_data'] = order_data
+            return redirect('order_confirmation', order_number=order.order_number)
+
     else:
         shipping_billing_form = ShippingBillingForm()
         payment_form = PaymentForm()
 
     total_price = sum(item.book.selling_price * item.quantity for item in cart.cartitem_set.all())
+    tax = total_price * TAX_RATE
+    order_total = total_price + tax + SHIPPING_HANDLING_FEE
 
     return render(request, 'checkout_test.html', {
         'cart': cart,
@@ -421,8 +571,10 @@ def checkout_test(request):
         'saved_cards': saved_cards,
         'saved_shipping': saved_shipping,
         'total_price': total_price,
+        'tax': tax,
+        'shipping': SHIPPING_HANDLING_FEE,
+        'order_total': order_total,
     })
-
 
 @login_required
 def apply_promotion(request):
@@ -439,10 +591,22 @@ def apply_promotion(request):
     return redirect('view_cart')
 
 @login_required
-def order_confirmation(request):
-    cart = Cart.objects.get(user=request.user)
-    cart_items = CartItem.objects.filter(cart=cart)
-    return render(request, 'order_confirmation.html', {'cart': cart, 'cart_items': cart_items})
+def order_confirmation(request, order_number):
+    order_data = request.session.get('order_data')
+    if not order_data or order_data.get('order_number') != order_number:
+        return redirect('checkout_test')
+
+    email_subject = 'Your Order Confirmation'
+    email_body = render_to_string('order_confirmation_email.html', order_data)
+    send_mail(
+        email_subject,
+        email_body,
+        'team3books@gmail.com',
+        [request.user.email],
+        fail_silently=False,
+    )
+
+    return render(request, 'order_confirmation.html', order_data)
 
 def admin_home(request):
     return render(request, 'adminHomeTest.html')

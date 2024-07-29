@@ -1,14 +1,102 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Order Confirmation</title>
-</head>
-<body>
-    <div class="OrderConfirmation">
-        <h1>Order Confirmation</h1>
-        <div>Order Total: ${{ cart.get_total_price }}</div>
-        <div>Shipping Address: {{ cart.shippingbillinginfo.address }}</div>
-        <div>Payment Method: {{ cart.paymentinfo.card_number }}</div>
+{% extends "base_nav.html" %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block maincontent %}
+<style>
+    .order-confirmation {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #FDFBE4;
+        font-family: 'Gaegu', sans-serif;
+        padding: 20px;
+    }
+    .order-confirmation h1 {
+        text-align: center;
+        color: #A35950;
+        font-size: 32px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+    .order-info, .delivery-info, .shipping-info, .payment-info, .item-info {
+        background: rgba(163, 89, 80, 0.20);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    .order-info h2, .delivery-info h2, .shipping-info h2, .payment-info h2, .item-info h2 {
+        background: #A35950;
+        color: white;
+        padding: 10px;
+        border-radius: 10px 10px 0 0;
+        margin: -20px -20px 10px;
+    }
+    .order-info p, .delivery-info p, .shipping-info p, .payment-info p, .item-info p {
+        margin: 5px 0;
+        color: black;
+        font-size: 18px;
+    }
+    .item-info .item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .item-info .item img {
+        width: 100px;
+        height: 150px;
+        margin-right: 20px;
+    }
+    .item-info .item div {
+        flex: 1;
+    }
+    .item-info .item p {
+        color: black;
+        font-size: 16px;
+        margin: 2px 0;
+    }
+</style>
+
+<div class="order-confirmation">
+    <h1>Thanks for shopping with us!</h1>
+    <div class="order-info">
+        <h2>Order Info</h2>
+        <p>Date ordered: {{ date_ordered }}</p>
+        <p>Order #: {{ order_number }}</p>
+        <p>Total: ${{ total|floatformat:2 }}</p>
     </div>
-</body>
-</html>
+    <div class="delivery-info">
+        <h2>Delivery Info</h2>
+        <p>Awaiting shipment</p>
+        <p>Tracking details: Tracking number 0000000000</p>
+    </div>
+    <div class="shipping-info">
+        <h2>Shipping Info</h2>
+        <p>Name: {{ shipping_info.name }}</p>
+        <p>Address: {{ shipping_info.address }}</p>
+    </div>
+    <div class="payment-info">
+        <h2>Payment Info</h2>
+        <p>Card type: {{ payment_info.card_type }}</p>
+        <p>Card #: **** **** **** {{ payment_info.card_number|slice:"-4:" }}</p>
+        <p>Item amount: {{ cart_items.count }}</p>
+        <p>Item total: ${{ total_price|floatformat:2 }}</p>
+        <p>Tax: ${{ tax|floatformat:2 }}</p>
+        <p>Shipping: ${{ shipping|floatformat:2 }}</p>
+        <p>Order total: ${{ order_total|floatformat:2 }}</p>
+    </div>
+    <div class="item-info">
+        <h2>Item Info</h2>
+        {% for item in cart_items %}
+        <div class="item">
+            <img src="{{ item.book.cover_picture.url }}" alt="{{ item.book.title }} cover">
+            <div>
+                <p>{{ item.book.title }} - ${{ item.book.selling_price }}</p>
+                <p>By: {{ item.book.authors }}</p>
+                <p>Quantity: {{ item.quantity }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
