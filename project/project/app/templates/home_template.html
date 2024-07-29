@@ -1,0 +1,81 @@
+{% extends "base_nav.html" %}
+
+{% block maincontent %}
+<div id='home-container'>
+  <!-- Background image will go here. -->
+  <div id='home-bg-image'></div>
+  <div id='home-book-content'>
+    <h1 id='home-welcome-msg'>Welcome to team3books</h1>
+
+    <!-- Featured Books Section -->
+    <h2 class='book-ls-label'>Featured Books</h2>
+    <ul class='book-panel'>
+      {% for book in featured_books %}
+      <li class='book-card-li'>
+        <div class='book-card-home'>
+          <img src="{{ book.cover_picture.url }}" alt="{{ book.title }} cover" width='100'>
+          <div class='book-card-txt'>
+            <h3>{{ book.title }}</h3>
+            <p>Author: {{ book.authors }}</p>
+            <p>Price: ${{ book.selling_price }}</p>
+            <form method='post' action='{% url "add_to_cart" book.id %}'>
+              {% csrf_token %}
+              <button type='submit'>Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </li>
+      {% empty %}
+      <p>No featured books available.</p>
+      {% endfor %}
+    </ul>
+
+    <!-- New Arrivals Section -->
+    <h2 class='book-ls-label'>New Arrivals</h2>
+    <ul class='book-panel'>
+      {% for book in new_arrivals_books %}
+      <li class='book-card-li'>
+        <div class='book-card-home'>
+          <img src="{{ book.cover_picture.url }}" alt="{{ book.title }} cover" width="100">
+          <div class='book-card-txt'>
+            <h3>{{ book.title }}</h3>
+            <p>Author: {{ book.authors }}</p>
+            <p>Price: ${{ book.selling_price }}</p>
+            <form method='post' action='{% url "add_to_cart" book.id %}'>
+              {% csrf_token %}
+              <button type='submit'>Add to Cart</button>
+            </form>
+          </div>
+        </div>
+      </li>
+      {% empty %}
+      <p>No new arrivals available.</p>
+      {% endfor %}
+    </ul>
+
+    <!-- Cart Items Section -->
+    <h2 class='book-ls-label'>Cart Items</h2>
+    <ul class='book-panel'>
+      {% for item in cart_items %}
+      <li class='book-card-li'>
+        <div class='book-card-home'>
+          <img src="{{ item.book.cover_picture.url }}" alt="{{ item.book.title }} cover" width='100'>
+          <div class='book-card-txt'>
+            <h3>{{ item.book.title }}</h3>
+            <p>Author: {{ item.book.authors }}</p>
+            <p>Price: ${{ item.book.selling_price }}</p>
+            <p>Quantity: {{ item.quantity }}</p>
+            <form method='post' action='{% url "delete_cart_item" item.id %}'>
+              {% csrf_token %}
+              <button type='submit'>Remove from Cart</button>
+            </form>
+          </div>
+        </div>
+      </li>
+      {% empty %}
+      <p>No items in cart.</p>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock maincontent %}

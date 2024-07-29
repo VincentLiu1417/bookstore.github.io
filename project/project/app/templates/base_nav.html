@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}team3books{% endblock %}
+
+{% block content %}
+<nav id='navbar'>
+  <!-- Logo and link to home -->
+  <div id='nav-upper'>
+    <a href='#'>Logo</a>
+    
+    <form id='search-form'>
+      <input class='search-bar' type='text' placeholder='Search by Title, Author, or ISBN'>
+      <input class='search-btn' type='submit' value='Search'>
+    </form>
+    <div id='nav-cart-login'>
+      <a href="{% url 'view_cart' %}">Shopping Cart ({{ cart_items.count }})</a>
+      {% if user.is_authenticated %}
+      <a href='#'>Logout</a>
+      {% else %}
+      <a href="{% url 'login' %}">Login / Sign Up</a>
+      {% endif %}
+    </div>
+  </div>
+  <div id='nav-lower'>
+    <a class='nav-link off-center-underline' href="{% url 'book_list' %}">Books</a>
+    <a class='nav-link off-center-underline' href='#'>Fiction</a>
+    <a class='nav-link off-center-underline' href='#'>Nonfiction</a>
+    <a class='nav-link off-center-underline' href='#'>Teen</a>
+    <a class='nav-link off-center-underline' href='#'>Kids</a>
+    <a class='nav-link off-center-underline' href='#'>Manga</a>
+  </div>
+  <!-- Search bar  -->
+</nav>
+
+<div id='main-content'>
+  {% block maincontent %}
+  {% endblock maincontent %}
+</div>
+
+{% endblock content %}

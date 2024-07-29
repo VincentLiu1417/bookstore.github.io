@@ -1,0 +1,37 @@
+<h1>Thanks for shopping with us!</h1>
+<div class="order-info">
+    <h2>Order Info</h2>
+    <p>Date ordered: {{ date_ordered }}</p>
+    <p>Order #: {{ order_number }}</p>
+    <p>Total: ${{ total|floatformat:2 }}</p>
+</div>
+<div class="delivery-info">
+    <h2>Delivery Info</h2>
+    <p>Awaiting shipment</p>
+    <p>Tracking details: Tracking number 0000000000</p>
+</div>
+<div class="shipping-info">
+    <h2>Shipping Info</h2>
+    <p>Name: {{ shipping_info.name }}</p>
+    <p>Address: {{ shipping_info.address }}</p>
+</div>
+<div class="payment-info">
+    <h2>Payment Info</h2>
+    <p>Card type: {{ payment_info.card_type }}</p>
+    <p>Card #: **** **** **** {{ payment_info.card_number|slice:"-4:" }}</p>
+    <p>Item amount: {{ cart_items.count }}</p>
+    <p>Item total: ${{ total_price|floatformat:2 }}</p>
+    <p>Tax: ${{ tax|floatformat:2 }}</p>
+    <p>Shipping: ${{ shipping|floatformat:2 }}</p>
+    <p>Order total: ${{ order_total|floatformat:2 }}</p>
+</div>
+<div class="item-info">
+    <h2>Item Info</h2>
+    {% for item in cart_items %}
+    <div class="item">
+        <p>{{ item.book.title }} - ${{ item.book.selling_price }}</p>
+        <p>By: {{ item.book.authors }}</p>
+        <p>Quantity: {{ item.quantity }}</p>
+    </div>
+    {% endfor %}
+</div>

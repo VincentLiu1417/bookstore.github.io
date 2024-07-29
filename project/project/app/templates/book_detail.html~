@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ book.title }}</title>
+   
+</head>
+<body>
+    <h1>{{ book.title }}</h1>
+    {% if book.cover_picture %}
+        <img src="{{ book.cover_picture.url }}" alt="{{ book.title }}" style="max-width: 300px; height: auto;">
+    {% else %}
+        <p>No cover image available</p>
+    {% endif %}
+    <!-- Add more book details here if necessary -->
+    <p><a href="{% url 'book_list' %}">Back to Book List</a></p>
+</body>
+</html>

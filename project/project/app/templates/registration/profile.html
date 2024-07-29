@@ -1,0 +1,25 @@
+<!-- templates/registration/profile.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Profile</title>
+</head>
+<body>
+    <h2>User Profile</h2>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Username:</strong> {{ user.username }}</p>
+    <p><strong>First Name:</strong> {{ user.first_name }}</p>
+    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
+    <p><strong>Phone:</strong> {{ user.phone }}</p>
+    <p><strong>Address:</strong> {{ user.address }}</p>
+    <p><strong>State:</strong> {{ user.state }}</p>
+    <p><strong>City:</strong> {{ user.city }}</p>
+    <p><strong>ZIP:</strong> {{ user.zip }}</p>
+    <h3>Actions</h3>
+    <ul>
+        <li><a href="{% url 'profile_update' %}">Update Profile</a></li>
+        <li><a href="{% url 'password_change' %}">Change Password</a></li>
+        <li><a href="{% url 'profile_payment_methods' %}">Manage Payment Methods</a></li>
+    </ul>
+</body>
+</html>

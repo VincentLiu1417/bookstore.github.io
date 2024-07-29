@@ -1,0 +1,149 @@
+@import url('https://fonts.googleapis.com/css2?family=Gaegu&display=swap');
+
+* {
+    margin: 0px;
+    background-color: #FDFBE4;
+    font-family: 'Gaegu', sans-serif;
+}
+
+
+
+#nav-upper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+}
+
+#nav-lower {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid black; /* dev purpose - delete later */
+    padding: 10px;
+}
+
+#home-welcome-msg {
+    display: flex;
+    justify-content: center;
+}
+
+.book-ls-label {
+    display: flex;
+    justify-content: center;
+}
+
+
+#search-form {
+    
+}
+
+.search-bar {
+    background-color: white;
+    width: 300px;
+    height: 30px;
+    padding: 10px;
+    margin-left: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    /* outline: none; */
+}
+
+.search-btn {
+    background-color: #A35950;
+    color: #FFFFFF;
+    width: 100px;
+    height: 50px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 16px;
+}
+
+#nav-cart-login {
+    display: flex;
+    justify-content: space-between;
+}
+
+#nav-cart-login a {
+    margin-right: 40px;
+}
+
+.nav-link {
+    font-size: 32px;
+    color: #322829;
+    position: relative;
+    text-decoration: none;
+}
+
+.nav-link:after {
+    position: absolute;
+    height: 5px;
+    margin: 0 auto;
+    content: '';
+    left: 0;
+    right: -200;
+    width: 80%;
+    color: #322829;
+    background-color: #322829;
+    left: 0;
+    bottom: -4px;
+}
+
+.book-panel {
+    display: flex;
+    list-style-type: none;
+    padding: 15px;
+    justify-content: space-around;
+}
+
+.book-card-home img {
+    max-height: 120px;
+}
+
+#footer * {
+    background-color: #A35950;
+    color: #FFF;
+}
+
+#footer-hero {
+    text-align: center;
+    border-top: 1px solid #ccc;
+}
+
+#footer-info {
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-subinfo {
+    text-align: center;
+}
+
+#footer-txt {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    height: 20px;
+    width: 50px;
+    
+}
+
+# footer-submit-btn {
+    background-color: #322829;
+    color: #fff;
+    
+}
+
+/*
+.book-card-txt {
+    text-align: center;
+}
+
+.book-card-home {
+    margin: 0px auto;
+}
+
+.book-card-li {    
+}
+*/
+/*
