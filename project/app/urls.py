@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
-
+from django.conf.urls import handler400, handler403, handler404, handler500
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
@@ -56,3 +56,18 @@ urlpatterns = [
     
     
 ]
+
+handler400 = lambda request, exception=None: views.custom_error_view(request, exception, '400.html')
+#handler401 = lambda request, exception=None: views.custom_error_view(request, exception, '401.html')
+handler403 = lambda request, exception=None: views.custom_error_view(request, exception, '403.html')
+handler404 = lambda request, exception=None: views.custom_error_view(request, exception, '404.html')
+#handler405 = lambda request, exception=None: views.custom_error_view(request, exception, '405.html')
+#handler408 = lambda request, exception=None: views.custom_error_view(request, exception, '408.html')
+#handler409 = lambda request, exception=None: views.custom_error_view(request, exception, '409.html')
+#handler410 = lambda request, exception=None: views.custom_error_view(request, exception, '410.html')
+handler500 = lambda request, exception=None: views.custom_error_view(request, exception, '500.html')
+#handler501 = lambda request, exception=None: views.custom_error_view(request, exception, '501.html')
+#handler502 = lambda request, exception=None: views.custom_error_view(request, exception, '502.html')
+#handler503 = lambda request, exception=None: views.custom_error_view(request, exception, '503.html')
+#handler504 = lambda request, exception=None: views.custom_error_view(request, exception, '504.html')
+#handler505 = lambda request, exception=None: views.custom_error_view(request, exception, '505.html')

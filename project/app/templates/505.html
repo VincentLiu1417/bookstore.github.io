@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}505 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>505 HTTP Version Not Supported:</h2>
+  <p>The version of HTTP used is not supported by the server. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}

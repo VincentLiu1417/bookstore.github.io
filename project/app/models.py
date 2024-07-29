@@ -55,7 +55,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_suspended = models.BooleanField(default=False)
     date_joined = models.DateTimeField(auto_now_add=True)
-    #is_subscribed = models.BooleanField(default=True)
+    is_subscribed = models.BooleanField(default=True)
 
     objects = CustomUserManager()
 

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}400 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>400 Bad Request</h2>
+  <p>The server could not understand the request due to invalid syntax.<a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% endblock content %}

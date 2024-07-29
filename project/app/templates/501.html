@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}501 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>501 Not Implemented:</h2>
+  <p>The request method is not implemented by the server. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}

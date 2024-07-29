@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}503 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>503 Service Unavailable:</h2>
+  <p>The server is unable to handle the request. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}

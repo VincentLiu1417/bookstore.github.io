@@ -298,16 +298,16 @@ def register(request):
         user_form = CustomUserCreationForm(request.POST)
         payment_form = PaymentInfoForm(request.POST)
         
-        if user_form.is_valid() and payment_form.is_valid:
+        if user_form.is_valid():
             user = user_form.save(commit=False)
             user.is_verified = False
             user.save()
             # verification email -- implement
             send_verification_email(request, user)
-
-            payment_info = payment_form.save(commit=False)
-            payment_info.user = user
-            payment_info.save()
+            if payment_form.is_valid():
+                payment_info = payment_form.save(commit=False)
+                payment_info.user = user
+                payment_info.save()
             return redirect('email_verification_sent')
         
     else:
@@ -516,3 +516,10 @@ def order_confirmation(request):
     cart = Cart.objects.get(user=request.user)
     cart_items = CartItem.objects.filter(cart=cart)
     return render(request, 'order_confirmation.html', {'cart': cart, 'cart_items': cart_items})
+
+
+def custom_error_view(request, exception=None, template_name='500.html'):
+    '''
+    Returns the custom error template.
+    '''
+    return render(request, template_name)

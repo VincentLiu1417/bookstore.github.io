@@ -78,7 +78,9 @@ class CustomPasswordResetForm(PasswordResetForm):
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(label='Email or Username', widget=forms.TextInput(attrs={
         'class': 'custom-input',
-        'placeholder': 'Email or Username'
+        'placeholder': 'Email or Username',
+        'style': 'width: 100%; background-color: #FDFBE4;'
+        
     }))
     password = forms.CharField(
         label = 'Password',
@@ -118,6 +120,8 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.PasswordInput(attrs={'class': 'custom-input', 'placeholder': 'Confirm Password'})
     )
 
+    is_subscribed = forms.BooleanField(required=False, initial=True, label='Join mailing list.')
+    
     # TODO - add is_subscribed
     class Meta:
         model = CustomUser
@@ -134,6 +138,9 @@ class UserProfileUpdateForm(UserChangeForm):
             return self.instance.email # treat it as property that cannot be changed.
 
 class PaymentInfoForm(forms.ModelForm): ## smh shouldnt have made this one
+    card_number = forms.CharField(required=False)
+    expiration_date = forms.CharField(required=False)
+    cvv = forms.CharField(required=False)
     class Meta:
         model = PaymentInfo
         fields = ['card_number', 'expiration_date', 'cvv']

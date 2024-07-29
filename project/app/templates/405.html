@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}405 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>405 Method Not Allowed:</h2>
+  <p>The request method is not supported by the target resource. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}

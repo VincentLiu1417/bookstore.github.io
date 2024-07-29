@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}409 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>404 Conflict:</h2>
+  <p>Sorry, the request conflicts with the current state of the server. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}

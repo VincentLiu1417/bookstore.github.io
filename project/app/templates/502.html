@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}502 Error{% endblock title %}
+
+{% block content %}
+<div class="http-error-container">
+  <h2>502 Bad Gateway:</h2>
+  <p>Server received an invalid response from the upstream server. <a href="{% url 'home' %}">Take me home.</a></p>
+</div>
+{% block content %}
