@@ -148,18 +148,27 @@ class Promotion(models.Model):
     code = models.CharField(max_length=50, unique=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2)
     is_active = models.BooleanField(default=True)
-
     def __str__(self):
         return self.code
     
 class Order(models.Model):
-    cart = models.ForeignKey(Cart, related_name="order", on_delete=models.PROTECT)
-    user = models.ForeignKey(CustomUser, related_name="user", on_delete=models.CASCADE)
-    instructions = models.TextField(max_length=255)
-    date = models.DateTimeField(auto_now_add=True)
-    
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    order_number = models.CharField(max_length=12, unique=True)
+    date_ordered = models.DateTimeField(auto_now_add=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    tax = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2)
+    order_total = models.DecimalField(max_digits=10, decimal_places=2)
+    shipping_info = models.ForeignKey('ShippingBillingInfo', on_delete=models.SET_NULL, null=True, blank=True)
+    payment_info = models.ForeignKey('PaymentInfo', on_delete=models.SET_NULL, null=True, blank=True)
     
     def __str__(self):
         return f"{self.user.username} order from {date}"
     
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
     
+    def __str__(self):
+        return f"{self.quantity} x {self.book.title}"

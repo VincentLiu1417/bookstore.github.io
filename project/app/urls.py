@@ -4,6 +4,9 @@ from django.contrib.auth.views import LogoutView
 from django.contrib.auth import views as auth_views
 from django.conf.urls import handler400, handler403, handler404, handler500
 urlpatterns = [
+    path('update_payment/', views.update_payment_method, name='update_payment_method'),
+    path('select-payment-method/<int:payment_info_id>/', views.select_payment_method_view, name='select_payment_method'),
+    path('add_delivery_instructions/', views.add_delivery_instructions, name='add_delivery_instructions'),
     path('register/', views.register, name='register'),
     path('activate/<uidb64>/<token>/', views.activate, name='activate'),
     path('email_verification_sent/', views.email_verification_sent, name='email_verification_sent'),

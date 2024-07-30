@@ -1,0 +1,19 @@
+<!-- manage_payment_methods.html -->
+<h2>Your Payment Methods</h2>
+{% if payment_infos.count < 3%}
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Add New Payment Method</button>
+</form>
+{% endif %}
+<ul>
+    {% for payment_info in payment_infos %}
+        <li>
+            Card Number (Last 4 digits): {{ payment_info.get_decrypted_card_number|slice:"-4:" }}
+            <a href="{% url 'select_payment_method' payment_info.id %}">Select</a>
+        </li>
+    {% empty %}
+        <li>No payment methods available.</li>
+    {% endfor %}
+</ul>
