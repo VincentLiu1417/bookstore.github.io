@@ -117,12 +117,12 @@ class PaymentInfo(models.Model):
     cvv = models.TextField()
     @staticmethod
     def encrypt_value(value):
-        fernet = Fernet(os.environ['FERNET_KEY'])
+        fernet = Fernet(settings.FERNET_KEY.encode())
         return fernet.encrypt(value.encode()).decode('utf-8')
     @staticmethod
     def decrypt_value(value):
-        fernet = Fernet(os.environ['FERNET_KEY'])
-        return fernet.decrypt(value).decode('utf-8')
+        fernet = Fernet(settings.FERNET_KEY.encode())
+        return fernet.decrypt(value.encode()).decode('utf-8')
     '''
     def save(self, *args, **kwargs):
         if isinstance(self.card_number, str):

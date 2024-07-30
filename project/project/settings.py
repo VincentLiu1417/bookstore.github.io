@@ -12,14 +12,15 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# load env vars
-load_dotenv()
-FERNET_KEY=os.getenv('FERNET_KEY')
+FERNET_KEY = 'iE3_HOQDofAmuJRJ70TeyG67h8L6ZxQQ8rdNdZtdjrU='
+if not FERNET_KEY:
+    raise KeyError('FERNET_KEY environment var not set')
+fernet = Fernet(FERNET_KEY.encode())
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
@@ -31,6 +32,8 @@ SECRET_KEY = 'django-insecure-%!0a1@59)0g_fd51an%k(m=+ae_jxk)**)bew16(-y=h7nqe#j
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+
+
 
 
 # Application definition
