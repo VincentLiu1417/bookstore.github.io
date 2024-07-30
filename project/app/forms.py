@@ -7,6 +7,14 @@ from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 
 
+class PromotionFactoryForm(forms.ModelForm):
+    '''
+    Works with views.create_promotion and models.Promotion in order to accept input and create promos.
+    '''
+    class Meta:
+        model = Promotion
+        fields = ['code', 'discount']
+
 class BookSearchForm(forms.Form):
     query = forms.CharField(required=False,
                             widget=forms.TextInput(attrs={'class': 'search-bar','placeholder': 'Search by title, author, ISBN, or category'}))
@@ -137,25 +145,36 @@ class UserProfileUpdateForm(UserChangeForm):
         def clean_email(self):
             return self.instance.email # treat it as property that cannot be changed.
 
-class PaymentInfoForm(forms.ModelForm): ## smh shouldnt have made this one
+class PaymentInfoForm(forms.Form): ## smh shouldnt have made this one
     card_number = forms.CharField(required=False)
     expiration_date = forms.CharField(required=False)
     cvv = forms.CharField(required=False)
     class Meta:
         model = PaymentInfo
-        fields = ['card_number', 'expiration_date', 'cvv']
+        fields = []
+    def save(self, user, commit=True):
+        payment_info = PaymentInfo(
+            user=user,  # Set the user
+            card_number=PaymentInfo.encrypt_value(self.cleaned_data['card_number']),
+            expiration_date=PaymentInfo.encrypt_value(self.cleaned_data['expiration_date']),
+            cvv=PaymentInfo.encrypt_value(self.cleaned_data['cvv'])
+        )
+
+        if commit:
+            payment_info.save()
+        return payment_info
 
 ### Nancy's ###
 class ShippingBillingForm(forms.ModelForm):
     class Meta:
         model = ShippingBillingInfo
         fields = ['address', 'city', 'state', 'zip_code', 'country']
-
+'''
 class PaymentForm(forms.ModelForm):
     class Meta:
         model = PaymentInfo
         fields = ['card_number', 'expiration_date', 'cvv']
-
+'''
 class PromotionCodeForm(forms.ModelForm):
     class Meta:
         model = Promotion

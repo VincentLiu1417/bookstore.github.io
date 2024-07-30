@@ -1,0 +1,22 @@
+{% extends "base_nav.html" %}
+
+{% block title %}Create Promotion - Admin{% endblock title %}
+
+{% block maincontent %}
+<form method='post'>
+  {% csrf_token %}
+  <div class='custom-input'>
+    {{ form.code.label_tag }}
+    {{ form.code.errors }}
+    {{ form.code }}
+  </div>
+  <div class='custom-input'>
+    {{ form.discount.label_tag }}
+    {{ form.discount.errors }}
+    {{ form.discount }}
+  </div>
+  <button type='submit' class='promo-factory-btn'>
+    Create Promotion
+  </button>
+</form>
+{% endblock maincontent %}

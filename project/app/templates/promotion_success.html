@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Promotion Creation Successful{% endblock title %}
+{% block content %}
+<div class='promo-success-container'>
+  <h1>Promotion created successfully.</h1>
+  <p>Create a new <a href="{% url 'create_promotion' %}">promotion</a></p>
+</div>
+{% endblock content%}

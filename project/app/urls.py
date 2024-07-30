@@ -35,6 +35,9 @@ urlpatterns = [
     path('books/<int:pk>/', views.book_detail, name='book_detail'),
     path('add_to_cart/<int:book_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.view_cart, name='view_cart'),
+    path('create-promotion/', views.create_promotion, name='create_promotion'),
+    path('promotion-success/', views.promotion_success, name='promotion_success'),
+    
 
 ### Nancy's URLS ###
     path('add_to_cart/<int:book_id>/', views.add_to_cart, name='add_to_cart'),

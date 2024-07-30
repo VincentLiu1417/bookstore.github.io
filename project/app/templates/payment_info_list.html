@@ -10,7 +10,7 @@
   <ul class='payment-methods-list'>
     {% for payment in payment_methods %}
     <li>
-      {{ payment.card_number }} - {{ payment.expiration_date }}
+      ****-****-****-{{ payment.get_decrypted_card_number|slice:"-4:" }} - {{ payment.get_decrypted_expiration_date }}
       <a href="{% url 'update_payment_info' payment.pk %}">Edit</a>
       <a href="{% url 'delete_payment_info' payment.pk %}">Delete</a>
     </li>

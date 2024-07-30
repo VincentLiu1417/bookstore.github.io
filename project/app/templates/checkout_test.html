@@ -129,7 +129,7 @@
     <div class="payment-info summary-box">
         <h2>Payment Information</h2>
         <a href="{% url 'update_payment_info_nopk' %}" class="change-link">Change</a>
-        <p>Paying with: {% if saved_cards %}**** **** **** {{ saved_cards.last.card_number|slice:'-4:' }}{% else %}No payment information saved.{% endif %}</p>
+        <p>Paying with: {% if saved_cards %}**** **** **** {{ saved_cards.last.get_decrypted_card_number|slice:'-4:' }}{% else %}No payment information saved.{% endif %}</p>
         <a href="#">Use gift card payment</a>
     </div>
     <div class="order-summary summary-box">

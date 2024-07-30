@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm, ShippingBillingForm, PaymentForm
+from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm, ShippingBillingForm, PaymentForm, PromotionFactoryForm
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -339,18 +339,23 @@ class CustomLoginView(LoginView):
 
 @login_required
 def payment_info_list(request):
-    payment_methods = request.user.payment_methods.all()
-    return render(request, 'payment_info_list.html', {'payment_methods': payment_methods})
+    #payment_methods = request.user.payment_methods.all()
+    payment_info = PaymentInfo.objects.filter(user=request.user)
+    context = {
+        'payment_methods': payment_info,
+    }
+    return render(request, 'payment_info_list.html',context)
 
 @login_required
 def add_payment_info(request):
     if request.method == 'POST':
         form = PaymentInfoForm(request.POST)
         if form.is_valid():
-            payment_info = form.save(commit=False)
-            payment_info.user = request.user
-            payment_info.save()
+            #payment_info = form.save(commit=False)
+            #payment_info.user = request.user
+            #payment_info.save()
             #messages.success(request, 'Payment method added successfully.')
+            form.save(user=request.user)
             return redirect('payment_info_list')
     else:
         form = PaymentInfoForm()
@@ -360,7 +365,7 @@ def add_payment_info(request):
 @login_required
 def update_payment_info_nopk(request):
     try:
-        payment_info = PaymentInfo.objects.get(user=request.user)
+        payment_info = PaymentInfo.objects.filter(user=request.user)
     except PaymentInfo.DoesNotExist:
         payment_info = None
 
@@ -376,7 +381,14 @@ def update_payment_info_nopk(request):
         form = PaymentForm(instance=payment_info)
 
     return render(request, 'update_payment_info.html', {'form': form})
-
+'''
+def update_payment_method(request):
+    try:
+        payment_info = PaymentInfo.objects.filter(user=request.user)
+    except PaymentInfo.DoesNotExist:
+        return redirect('payment_info_list')
+    return render(request, 'select_payment.html', {'payment_info': payment_info})
+'''     
 
 @login_required
 def update_payment_info(request, pk):
@@ -517,6 +529,35 @@ def order_confirmation(request):
     cart_items = CartItem.objects.filter(cart=cart)
     return render(request, 'order_confirmation.html', {'cart': cart, 'cart_items': cart_items})
 
+@login_required
+@user_passes_test(user_is_admin)
+def create_promotion(request):
+    '''
+    Works with forms.PromotionFactoryForm to create promotions and email them to users.
+    '''
+    if request.method == 'POST':
+        form = PromotionFactoryForm(request.POST)
+        if form.is_valid():
+            promotion = form.save()
+
+            # sending the promos to subscribed users.
+            subscribed_users = CustomUser.objects.filter(is_subscribed=True)
+            for user in subscribed_users:
+                send_mail(
+                    'New Promotion Available',
+                    f'Hi {user.first_name}, \n\nUse the code {promotion.code} for {promotion.discount} off your next purchase from team3books.\n\nBest, team3books',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [user.email],
+                )
+            return redirect('promotion_success') # redirects to success page
+    else:
+        form = PromotionFactoryForm()
+    return render(request, 'create_promotion.html', {'form': form})
+
+@login_required
+@user_passes_test(user_is_admin)
+def promotion_success(request):
+    return render(request, 'promotion_success.html')
 
 def custom_error_view(request, exception=None, template_name='500.html'):
     '''
