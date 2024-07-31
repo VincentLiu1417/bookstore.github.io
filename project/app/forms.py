@@ -1,20 +1,43 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
-from .models import CustomUser, Book, ShippingBillingInfo, PaymentInfo, Promotion
+from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, Cart
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 
 
+class PromotionFactoryForm(forms.ModelForm):
+    '''
+    Works with views.create_promotion and models.Promotion in order to accept input and create promos.
+    '''
+    class Meta:
+        model = Promotion
+        fields = ['code', 'discount']
+
 class BookSearchForm(forms.Form):
     query = forms.CharField(required=False,
-                            widget=forms.TextInput(attrs={'placeholder': 'Search by title, author, ISBN, or category'}))
+                            widget=forms.TextInput(attrs={'class': 'search-bar','placeholder': 'Search by title, author, ISBN, or category'}))
 
 class BookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = '__all__'
+        widgets = {
+            # YOU are here ...
+            'isbn': forms.TextInput(attrs={'class': 'custom-input', 'label': 'ISBN', 'placeholder': 'ISBN'}),
+            'authors': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Author(s)', 'placeholder': 'Author(s)'}),
+            'category': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Category'}),
+            'title': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Title', 'placeholder': 'Title'}),
+            'cover_picture': forms.ClearableFileInput(attrs={'class': 'custom-input', 'label': 'Cover Art'}),
+            'edition': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Edition'}),
+            'publisher': forms.TextInput(attrs={'class': 'custom-input', 'label': 'Publisher'}),
+            'publication_year': forms.TextInput(attrs={'class': 'custom-input', 'label':'Publication Year', 'placeholder': 'YYYY'}),
+            'quantity_in_stock': forms.TextInput(attrs={'class': 'custom-input', 'label':'Quantity'}),
+            'minimum_threshold': forms.TextInput(attrs={'class': 'custom-input', 'label':'Min Threshold'}),
+            'buying_price': forms.TextInput(attrs={'class': 'custom-input', 'label':'Buy Price'}),
+            'selling_price': forms.TextInput(attrs={'class': 'custom-input', 'label':'Sell Price'}),
+        }
 
 
 '''
@@ -61,39 +84,85 @@ class CustomPasswordResetForm(PasswordResetForm):
             )
 
 class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(label='Email or Username')
-
+    username = forms.CharField(label='Email or Username', widget=forms.TextInput(attrs={
+        'class': 'custom-input',
+        'placeholder': 'Email or Username',
+        'style': 'width: 100%; background-color: #FDFBE4;'
+        
+    }))
+    password = forms.CharField(
+        label = 'Password',
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'custom-input',
+                'placeholder': 'Password'
+            }
+        )
+    )
+    
 
 class CustomUserCreationForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    username = forms.CharField(required=True)
-    first_name = forms.CharField(required=True)
-    last_name = forms.CharField(required=True)
-    phone = forms.CharField(required=False)
-    address = forms.CharField(required=False)
-    state = forms.CharField(required=False)
-    city = forms.CharField(required=False)
-    zip = forms.CharField(required=False)
-    cc_number = forms.CharField(required=False)
-    cc_name = forms.CharField(required=False)
-    cc_exp = forms.CharField(required=False)
-    cvc = forms.CharField(required=False)
+    email = forms.EmailField(required=True,
+                             widget=forms.EmailInput(attrs={'class': 'custom-input', 'placeholder': 'Email (Required)'}))
+    username = forms.CharField(required=True,
+                               widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Username (Required)'}))
+    first_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'First name (Required)'}))
+    last_name = forms.CharField(required=True, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Last name (Required)'}))
+    phone = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Phone number (Required)'}))
+    address = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Street Address'}))
+    state = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'State'}))
+    city = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'City'}))
+    zip = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Zip Code'}))
+#    cc_number = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'Credit card number'}))
+ #   cc_name = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Name'}))
+  #  cc_exp = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CC Expiry'}))
+   # cvc = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'custom-input', 'placeholder': 'CVC'}))
     # is_subscribed = forms.BooleanField(required=False)
 
+    password1 = forms.CharField(
+        label='Password',
+        widget=forms.PasswordInput(attrs={'class': 'custom-input', 'placeholder': 'Password'})
+    )
+    password2 = forms.CharField(
+        label='Confirm Password',
+        widget=forms.PasswordInput(attrs={'class': 'custom-input', 'placeholder': 'Confirm Password'})
+    )
+
+    is_subscribed = forms.BooleanField(required=False, initial=True, label='Join mailing list.')
+    
     # TODO - add is_subscribed
     class Meta:
         model = CustomUser
-        fields = ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'phone', 'address', 'state', 'zip', 'cc_number', 'cc_name', 'cc_exp', 'cvc')
+        fields = ('email', 'username', 'first_name', 'last_name', 'password1', 'password2', 'phone', 'address', 'state', 'zip')
 class UserProfileUpdateForm(UserChangeForm):
     password = None # exclude the password from the form
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'zip', 'cc_num', 'cc_name', 'cc_expiry', 'cvc')
+        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'zip')
         widgets = {
             'address' : forms.Textarea(attrs={'rows': 1, 'cols': 40}),
         }
         def clean_email(self):
             return self.instance.email # treat it as property that cannot be changed.
+
+class PaymentInfoForm(forms.Form): ## smh shouldnt have made this one
+    card_number = forms.CharField(required=False)
+    expiration_date = forms.CharField(required=False)
+    cvv = forms.CharField(required=False)
+    class Meta:
+        model = PaymentInfo
+        fields = []
+    def save(self, user, commit=True):
+        payment_info = PaymentInfo(
+            user=user,  # Set the user
+            card_number=PaymentInfo.encrypt_value(self.cleaned_data['card_number']),
+            expiration_date=PaymentInfo.encrypt_value(self.cleaned_data['expiration_date']),
+            cvv=PaymentInfo.encrypt_value(self.cleaned_data['cvv'])
+        )
+
+        if commit:
+            payment_info.save()
+        return payment_info
 
 class ShippingBillingForm(forms.ModelForm):
     class Meta:
@@ -109,3 +178,4 @@ class PromotionCodeForm(forms.ModelForm):
     class Meta:
         model = Promotion
         fields = ['code']
+

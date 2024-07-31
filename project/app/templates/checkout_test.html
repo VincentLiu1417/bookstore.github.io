@@ -116,6 +116,11 @@
         color: white;
         cursor: pointer;
     }
+    .error-message {
+        color: #A35950;
+        font-size: 14px;
+    }
+
     /* Styles for the modal */
     .modal {
         display: none;
@@ -164,8 +169,13 @@
     <div class="payment-info summary-box">
         <h2>Payment Information</h2>
         <a href="#" class="change-link" onclick="showModal('paymentModal')">Change</a>
-        <p>Paying with: {% if saved_cards %}**** **** **** {{ saved_cards.last.card_number|slice:'-4:' }}{% else %}No payment information saved.{% endif %}</p>
-        <a href="#">Use gift card payment</a>
+        <p>Paying with: 
+            {% if decrypted_payment_info %}
+                **** **** **** {{ decrypted_payment_info.card_number|slice:'-4:' }}
+            {% else %}
+                No payment information saved.
+            {% endif %}
+        </p>
     </div>
     <div class="order-summary summary-box">
         <h2>Order Summary</h2>
@@ -180,6 +190,9 @@
                     <label for="quantity">Quantity:</label>
                     <input type="number" id="quantity" name="quantity" value="{{ item.quantity }}" min="1">
                     <button type="submit">Update</button>
+                    {% if stock_errors and stock_errors.item.id %}
+                    <div class="error-message">{{ stock_errors.item.id }}</div>
+                    {% endif %}
                 </form>
                 <p>Price: ${{ item.book.selling_price }}</p>
                 <form method="post" action="{% url 'delete_cart_item' item.id %}">
@@ -205,6 +218,9 @@
         <p>Tax: ${{ tax|floatformat:2 }}</p>
         <p>Shipping and Handling: ${{ shipping }}</p>
         <p>Order Total: ${{ order_total|floatformat:2 }}</p>
+        {% if form_errors %}
+        <div class="error-message">{{ form_errors }}</div>
+        {% endif %}
         {% if user.is_authenticated %}
         <form method="post" action="{% url 'checkout_test' %}">
             {% csrf_token %}
@@ -230,7 +246,6 @@
     </div>
 </div>
 
-<!-- Payment Modal -->
 <div id="paymentModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="hideModal('paymentModal')">&times;</span>
@@ -238,7 +253,15 @@
         <div id="paymentModal-errors"></div>
         <form id="paymentForm" method="post" action="{% url 'update_payment_info' %}" onsubmit="submitForm(event, 'paymentForm', 'paymentModal')">
             {% csrf_token %}
-            {{ payment_form.as_p }}
+            <label for="card_number">Card Number:</label>
+            <input type="text" id="card_number" name="card_number" size="20" maxlength="16">
+            <br>
+            <label for="expiration_date">Expiration Date:</label>
+            <input type="text" id="expiration_date" name="expiration_date" size="7" maxlength="5" placeholder="MM/YY">
+            <br>
+            <label for="cvv">CVV:</label>
+            <input type="text" id="cvv" name="cvv" size="3" maxlength="3">
+            <br>
             <button type="submit">Save</button>
         </form>
     </div>

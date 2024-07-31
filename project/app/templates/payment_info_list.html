@@ -1,0 +1,20 @@
+{% extends "base_nav.html" %}
+{% load static %}
+
+{% block title %}Payment Info{% endblock title%}
+
+{% block maincontent %}
+<div class='payment-methods-container'>
+  <h2>Your payment methods</h2>
+  <ul class='payment-methods-list'>
+    {% for payment in payment_methods %}
+    <li>
+      ****-****-****-{{ payment.get_decrypted_card_number|slice:"-4:" }} - {{ payment.get_decrypted_expiration_date }}
+      <a href="{% url 'update_payment_info' payment.pk %}">Edit</a>
+      <a href="{% url 'delete_payment_info' payment.pk %}">Delete</a>
+    </li>
+    {% endfor %}
+  </ul>
+  {% if payment_methods|length < 3 %}<a href="{% url 'add_payment_info' %}">Add New Payment Method</a>{% endif %}
+</div>
+{% endblock maincontent%}

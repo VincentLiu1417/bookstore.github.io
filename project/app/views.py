@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, ShippingBillingForm, PaymentForm, PromotionCodeForm
+from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, ShippingBillingForm, PaymentInfoForm, PaymentForm, PromotionCodeForm
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -285,6 +285,72 @@ def change_password(request):
     pass
 
 @login_required
+def payment_info_list(request):
+    #payment_methods = request.user.payment_methods.all()
+    payment_info = PaymentInfo.objects.filter(user=request.user)
+    context = {
+        'payment_methods': payment_info,
+    }
+    return render(request, 'payment_info_list.html',context)
+
+@login_required
+def add_payment_info(request):
+    if request.method == 'POST':
+        form = PaymentInfoForm(request.POST)
+        if form.is_valid():
+            #payment_info = form.save(commit=False)
+            #payment_info.user = request.user
+            #payment_info.save()
+            #messages.success(request, 'Payment method added successfully.')
+            form.save(user=request.user)
+            return redirect('payment_info_list')
+    else:
+        form = PaymentInfoForm()
+    return render(request, 'add_payment_info.html', {'form': form})
+
+@login_required
+def update_payment_info_nopk(request):
+    try:
+        payment_info = PaymentInfo.objects.filter(user=request.user)
+    except PaymentInfo.DoesNotExist:
+        payment_info = None
+
+    if request.method == 'POST':
+        form = PaymentForm(request.POST, instance=payment_info)
+        if form.is_valid():
+            payment_info = form.save(commit=False)
+            payment_info.user = request.user
+            payment_info.save()
+            messages.success(request, 'Payment information updated successfully!')
+            return redirect('view_cart')
+    else:
+        form = PaymentForm(instance=payment_info)
+
+    return render(request, 'update_payment_info.html', {'form': form})
+
+@login_required
+def update_payment_info(request, pk):
+    payment_info = get_object_or_404(PaymentInfo, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = PaymentInfoForm(request.POST, instance=payment_info)
+        if form.is_valid():
+            form.save()
+            #messages.success(request, 'Payment method updated successfully.')
+            return redirect('payment_info_list')
+    else:
+        form = PaymentInfoForm(instance=payment_info)
+    return render(request, 'update_payment_info.html', {'form': form})
+
+@login_required
+def delete_payment_info(request, pk):
+    payment_info = get_object_or_404(PaymentInfo, pk=pk, user=request.user)
+    if request.method == 'POST':
+        payment_info.delete()
+#        messages.success(request, 'Payment method deleted successfully.')
+        return redirect('payment_info_list')
+    return render(request, 'delete_payment_info.html', {'payment_info': payment_info})
+
+@login_required
 def payment_methods(request):
     '''
     Will be used to implement the change payment methods use case.
@@ -355,6 +421,63 @@ def delete_cart_item(request, item_id):
     item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
     item.delete()
     return redirect('view_cart')
+
+@login_required
+def checkout_view(request):
+    user = request.user
+    
+    # Fetch user's shipping and payment info
+    saved_shipping = ShippingBillingInfo.objects.filter(user=user).first()
+    saved_cards = PaymentInfo.objects.filter(user=user)
+    decrypted_payment_info = None
+
+    if saved_cards.exists():
+        last_card = saved_cards.last()
+        decrypted_payment_info = {
+            'card_number': last_card.get_decrypted_card_number(),
+            'expiration_date': last_card.get_decrypted_expiration_date(),
+            'cvv': last_card.get_decrypted_cvv()
+        }
+
+    if request.method == 'POST':
+        payment_form = PaymentForm(request.POST)
+        shipping_form = ShippingBillingForm(request.POST)
+
+        if payment_form.is_valid() and shipping_form.is_valid():
+            # Handle payment information encryption
+            card_number = PaymentInfo.encrypt_value(payment_form.cleaned_data['card_number'])
+            expiration_date = PaymentInfo.encrypt_value(payment_form.cleaned_data['expiration_date'])
+            cvv = PaymentInfo.encrypt_value(payment_form.cleaned_data['cvv'])
+            
+            PaymentInfo.objects.update_or_create(
+                user=user,
+                defaults={
+                    'card_number': card_number,
+                    'expiration_date': expiration_date,
+                    'cvv': cvv
+                }
+            )
+
+            # Handle shipping information
+            shipping_info = shipping_form.save(commit=False)
+            shipping_info.user = user
+            shipping_info.save()
+            
+            return redirect('checkout_success')
+
+    else:
+        payment_form = PaymentForm()
+        shipping_form = ShippingBillingForm()
+
+    context = {
+        'saved_shipping': saved_shipping,
+        'saved_cards': saved_cards,
+        'payment_form': payment_form,
+        'shipping_form': shipping_form,
+        'decrypted_payment_info': decrypted_payment_info,
+    }
+    
+    return render(request, 'checkout_test.html', context)
 
 @login_required
 def update_shipping_info(request):
@@ -432,10 +555,29 @@ def checkout_test(request):
     TAX_RATE = Decimal('0.08')
     SHIPPING_HANDLING_FEE = Decimal('5.00')
 
+    stock_errors = {}
+
     if request.method == 'POST':
         shipping_billing_form = ShippingBillingForm(request.POST)
         payment_form = PaymentForm(request.POST)
         if shipping_billing_form.is_valid() and payment_form.is_valid():
+            for item in cart.cartitem_set.all():
+                if item.quantity > item.book.quantity_in_stock:
+                    stock_errors[item.id] = f'{item.book.title} is Not in Stock'
+            if stock_errors:
+                return render(request, 'checkout_test.html', {
+                    'cart': cart,
+                    'shipping_billing_form': shipping_billing_form,
+                    'payment_form': payment_form,
+                    'saved_cards': saved_cards,
+                    'saved_shipping': saved_shipping,
+                    'total_price': total_price,
+                    'tax': tax,
+                    'shipping': SHIPPING_HANDLING_FEE,
+                    'order_total': order_total,
+                    'stock_errors': stock_errors,
+                })
+
             shipping_billing_info = shipping_billing_form.save(commit=False)
             shipping_billing_info.user = request.user
             shipping_billing_info.save()
@@ -467,6 +609,8 @@ def checkout_test(request):
                     book=item.book,
                     quantity=item.quantity
                 )
+                item.book.quantity_in_stock -= item.quantity
+                item.book.save()
 
             order_data = {
                 'order_number': order.order_number,
@@ -502,6 +646,7 @@ def checkout_test(request):
         'tax': tax,
         'shipping': SHIPPING_HANDLING_FEE,
         'order_total': order_total,
+        'stock_errors': stock_errors,
     })
 
 @login_required

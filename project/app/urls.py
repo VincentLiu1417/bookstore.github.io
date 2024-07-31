@@ -11,7 +11,12 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/update', views.profile_update, name='profile_update'),
     #path('profile/change_password', views.change_password, name='password_change'),
-    path('profile/payment_methods', views.payment_methods, name='profile_payment_methods'),
+    path('profile/payment_methods/', views.payment_info_list, name='payment_info_list'),
+    path('profile/payment_methods/add/', views.add_payment_info, name='add_payment_info'),
+    path('profile/payment_methods/update/<int:pk>/', views.update_payment_info, name='update_payment_info'),
+    path('cart/payment_method/update/', views.update_payment_info_nopk, name='update_payment_info_nopk'),
+    path('profile/payment_methods/delete/<int:pk>/', views.delete_payment_info, name='delete_payment_info'),
+
     path('login/', views.CustomLoginView.as_view(), name='login'),
 #    path('logout/', LogoutView.as_view(next_page='/'), name='logout')
     path('logout/', views.custom_logout_view, name='logout'),

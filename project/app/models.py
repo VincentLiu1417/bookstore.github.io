@@ -1,10 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-from decimal import Decimal
+from django.conf import settings
+from django.utils import timezone
+from cryptography.fernet import Fernet
+import os
 #from encrypted_model_fields.fields import EncryptedCharField
 
-
 class Book(models.Model):
+#    id = models.BigAutoField(primary_key=True)
     isbn = models.CharField(max_length=13, unique=True) # validate
     authors = models.CharField(max_length=255)
     category = models.CharField(max_length=100)
@@ -98,14 +101,40 @@ class ShippingBillingInfo(models.Model):
         return f'{self.user.username} - {self.address}'
     
 class PaymentInfo(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    card_number = models.CharField(max_length=16)
-    expiration_date = models.CharField(max_length=5)
-    cvv = models.CharField(max_length=3)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_methods') 
+    card_number = models.TextField()
+    expiration_date = models.TextField()
+    cvv = models.TextField()
+    @staticmethod
+    def encrypt_value(value):
+        fernet = Fernet(os.environ['FERNET_KEY'])
+        return fernet.encrypt(value.encode()).decode('utf-8')
+    @staticmethod
+    def decrypt_value(value):
+        fernet = Fernet(os.environ['FERNET_KEY'])
+        return fernet.decrypt(value).decode('utf-8')
+    
+    '''
+    def save(self, *args, **kwargs):
+        if isinstance(self.card_number, str):
+            self.card_number = self.encrypt_value(self.card_number)
+        if isinstance(self.expiration_date, str):
+            self.expiration_date = self.encrypt_value(self.expiration_date)
+        if isinstance(self.cvv, str):
+            self.cvv = self.encrypt_value(self.cvv)
+            
+        super(PaymentInfo, self).save(*args, **kwargs)
+    '''
 
-    def __str__(self):
-        return f'{self.user.username} - {self.card_number}'
+    def get_decrypted_card_number(self):
+        return self.decrypt_value(self.card_number)
 
+    def get_decrypted_expiration_date(self):
+        return self.decrypt_value(self.expiration_date)
+
+    def get_decrypted_cvv(self):
+        return self.decrypt_value(self.cvv)
+    
 class Promotion(models.Model):
     code = models.CharField(max_length=50, unique=True)
     discount = models.DecimalField(max_digits=5, decimal_places=2)
@@ -115,8 +144,8 @@ class Promotion(models.Model):
         return self.code
     
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_number = models.CharField(max_length=12, unique=True)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    order_number = models.CharField(max_length=12, unique=True, default=None)
     date_ordered = models.DateTimeField(auto_now_add=True)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
     tax = models.DecimalField(max_digits=10, decimal_places=2)
@@ -129,7 +158,7 @@ class Order(models.Model):
         return self.order_number
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
