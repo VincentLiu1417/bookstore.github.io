@@ -413,6 +413,62 @@ def select_payment_method_view(request, payment_info_id):
 
     return redirect('checkout_test')
 
+@login_required
+def checkout_view(request):
+    user = request.user
+
+    # Fetch user's shipping and payment info
+    saved_shipping = ShippingBillingInfo.objects.filter(user=user).first()
+    saved_cards = PaymentInfo.objects.filter(user=user)
+    decrypted_payment_info = None
+
+    if saved_cards.exists():
+        last_card = saved_cards.last()
+        decrypted_payment_info = {
+            'card_number': last_card.get_decrypted_card_number(),
+            'expiration_date': last_card.get_decrypted_expiration_date(),
+            'cvv': last_card.get_decrypted_cvv()
+        }
+
+    if request.method == 'POST':
+        payment_form = PaymentForm(request.POST)
+        shipping_form = ShippingBillingForm(request.POST)
+
+        if payment_form.is_valid() and shipping_form.is_valid():
+            # Handle payment information encryption
+            card_number = PaymentInfo.encrypt_value(payment_form.cleaned_data['card_number'])
+            expiration_date = PaymentInfo.encrypt_value(payment_form.cleaned_data['expiration_date'])
+            cvv = PaymentInfo.encrypt_value(payment_form.cleaned_data['cvv'])
+
+            PaymentInfo.objects.update_or_create(
+                user=user,
+                defaults={
+                    'card_number': card_number,
+                    'expiration_date': expiration_date,
+                    'cvv': cvv
+                }
+            )
+
+            # Handle shipping information
+            shipping_info = shipping_form.save(commit=False)
+            shipping_info.user = user
+            shipping_info.save()
+
+            return redirect('checkout_success')
+
+    else:
+        payment_form = PaymentForm()
+        shipping_form = ShippingBillingForm()
+
+    context = {
+        'saved_shipping': saved_shipping,
+        'saved_cards': saved_cards,
+        'payment_form': payment_form,
+        'shipping_form': shipping_form,
+        'decrypted_payment_info': decrypted_payment_info,
+    }
+
+    return render(request, 'checkout_test.html', context)
 
 
 @login_required
@@ -500,15 +556,6 @@ def update_shipping_info(request):
         form = ShippingBillingForm(instance=shipping_info)
 
     return render(request, 'update_shipping_info.html', {'form': form})
-
-
-
-
-
-
-
-
-
 
 
 

@@ -6,7 +6,7 @@
 <nav id='navbar'>
   <!-- Logo and link to home -->
   <div id='nav-upper'>
-    <a href="{% url 'home' %}"><img alt="Book Homepage" src="{% svg_icon 'books' %}" style="max-width: 50px; max-height: 50px;"></a>
+    <a href="{% url 'home' %}"><img alt="Book Homepage" src="{% svg_icon 'books' %}" style="max-width: 50px; max-height: 50px; min-height:50px; min-width:50px;"></a>
 <!--    
     <form id='search-form'>
       <input class='search-bar' type='text' placeholder='Search by Title, Author, or ISBN'>
@@ -24,10 +24,10 @@
     <div id='nav-cart-login'>
       <a href="{% url 'view_cart' %}"><img src="{% svg_icon 'shopping-cart' %}" alt="Shopping Cart" style='max-width:50px; max-height: 50px;'></a>
       {% if user.is_authenticated %}
-      <p style="font-size:26px;">Hi, </p><a style="font-size:26px; margin-left:8px;" href="{% url 'profile' %}">{{user.username}}</a>
+      <p style="font-size:20px;">Hi, </p><a style="font-size:20px; margin-left:8px;" href="{% url 'profile' %}">{{user.username}}</a>
       <form method='post' action="{% url 'logout' %}">
 	{% csrf_token %}
-	<button type='submit' class='logout-btn' style="font-size:26px">Logout</button>
+	<button type='submit' class='logout-btn' style="font-size:20px">Logout</button>
       </form>
       {% else %}
       <p style="font-size:26px;">Hi, guest<a href="{% url 'login_page'%}">Login</a> or <a href="{% url 'register' %}">Sign Up</a></p>

@@ -1,15 +1,14 @@
 <!-- templates/registration/profile_update.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Update Profile</title>
-</head>
-<body>
-    <h2>Update Profile</h2>
+{% extends "base_nav.html" %}
+{% load static %}
+{% block title %}Update Profile{% endblock %}
+{% block maincontent %}
+<div>
+<h2>Update Profile</h2>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Save changes</button>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}
