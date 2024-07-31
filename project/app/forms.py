@@ -1,12 +1,48 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, AuthenticationForm, PasswordResetForm
-from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, Cart
+from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, Cart, OrderItem, Order
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.sites.shortcuts import get_current_site
 
+"""
+class CheckoutForm(forms.ModelForm):
+    class Meta:
+        model = Order
+        fields = ['shipping_info', 'payment_info']
 
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user')
+        super().__init__(*args, **kwargs)
+        self.fields['shipping_info'].queryset = ShippingBillingInfo.objects.filter(user=self.user)
+        self.fields['payment_info'].queryset = PaymentInfo.objects.filter(user=self.user)
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Add any additional validation if needed
+        return cleaned_data
+"""
+class CheckoutForm(forms.Form):
+    shipping_address = forms.CharField(max_length=255)
+    shipping_city = forms.CharField(max_length=100)
+    shipping_state = forms.CharField(max_length=100)
+    shipping_zip_code = forms.CharField(max_length=10)
+    shipping_country = forms.CharField(max_length=100)
+    
+    # Drop-down menu for saved payment methods
+    payment_method = forms.ModelChoiceField(queryset=PaymentInfo.objects.none(), empty_label="Select a payment method")
+    
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user:
+            self.fields['payment_method'].queryset = PaymentInfo.objects.filter(user=user)
+
+    def clean(self):
+        cleaned_data = super().clean()
+        # You can add custom validation here if needed
+        return cleaned_data
 class PromotionFactoryForm(forms.ModelForm):
     '''
     Works with views.create_promotion and models.Promotion in order to accept input and create promos.

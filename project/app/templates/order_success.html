@@ -1,0 +1,17 @@
+<!-- templates/order_success.html -->
+{% extends "base_nav.html" %}
+
+{% block maincontent %}
+  <h2>Order Success</h2>
+  <p>Your order has been placed successfully. Here are your orders:</p>
+  <ul>
+    {% for order in orders %}
+    <li>Order Number: {{ order.order_number }} - Total: {{ order.order_total }}
+      <form action="{% url 'reorder' order.order_number %}" method="post" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit">Reorder</button>
+      </form>
+    </li>
+    {% endfor %}
+  </ul>
+{% endblock %}

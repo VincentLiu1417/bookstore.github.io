@@ -1,0 +1,10 @@
+{% extends "base_nav.html" %}
+{% block title%}Checkout{% endblock %}
+{% block maincontent%}
+    <h1>Checkout</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Place Order</button>
+    </form>
+{% endblock maincontent%}

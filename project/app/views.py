@@ -1,8 +1,9 @@
+import uuid
 import string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm, ShippingBillingForm, PaymentForm, PromotionFactoryForm
+from .forms import CustomUserCreationForm, UserProfileUpdateForm, CustomAuthenticationForm, CustomPasswordResetForm, BookForm, BookSearchForm, PaymentInfoForm, ShippingBillingForm, PaymentForm, PromotionFactoryForm, CheckoutForm
 from django.contrib.auth.forms import PasswordResetForm, SetPasswordForm
 from django.core.mail import send_mail, EmailMessage
 from django.template.loader import render_to_string
@@ -11,7 +12,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from .tokens import account_activation_token
-from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, CartItem, Cart
+from .models import CustomUser, Book, PaymentInfo, ShippingBillingInfo, Promotion, CartItem, Cart, Order, OrderItem
 from django.conf import settings
 from django.contrib.auth.views import LoginView, PasswordResetConfirmView
 from django.contrib.auth import logout
@@ -26,6 +27,103 @@ import random
 from .utils import get_user_backend
 from decimal import Decimal
 User = get_user_model()
+
+def reorder(request, order_number):
+    order = get_object_or_404(Order, order_number=order_number, user=request.user)
+
+    # Retrieve cart or create a new one
+    cart, created = Cart.objects.get_or_create(user=request.user)
+
+    # Add items from the previous order to the cart
+    for item in order.get_order_items():
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            book=item.book,
+            defaults={'quantity': item.quantity}
+        )
+        if not created:
+            cart_item.quantity += item.quantity
+            cart_item.save()
+
+    return redirect('checkout')
+
+def checkout(request):
+    if request.method == 'POST':
+        form = CheckoutForm(request.POST, user=request.user)
+        if form.is_valid():
+            shipping_address = form.cleaned_data['shipping_address']
+            shipping_city = form.cleaned_data['shipping_city']
+            shipping_state = form.cleaned_data['shipping_state']
+            shipping_zip_code = form.cleaned_data['shipping_zip_code']
+            shipping_country = form.cleaned_data['shipping_country']
+            payment_method = form.cleaned_data['payment_method']
+
+            # Get the user's cart
+            cart = Cart.objects.get(user=request.user)
+            cart_items = cart.items.all()
+
+            if not cart_items.exists():
+                form.add_error(None, 'Cart empty')
+                return render(request, 'checkout.html', {'form':form})
+            
+            # Create the shipping info
+            shipping_info = ShippingBillingInfo.objects.create(
+                user=request.user,
+                address=shipping_address,
+                city=shipping_city,
+                state=shipping_state,
+                zip_code=shipping_zip_code,
+                country=shipping_country
+            )
+
+            # Calculate total price
+            total_price = sum(item.book.selling_price * item.quantity for item in cart_items)
+
+            # Create the order
+            order_number = ''.join(random.choices(string.ascii_uppercase + string.digits, k=12))
+            order = Order.objects.create(
+                user=request.user,
+                order_number=order_number,
+                total_price=total_price,
+                tax=0,  # Calculate tax if needed
+                shipping_fee=0,  # Calculate shipping fee if needed
+                order_total=total_price,  # Adjust based on tax and shipping fee
+                shipping_info=shipping_info,
+                payment_info=payment_method
+            )
+
+            # Create OrderItems
+            for item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    book=item.book,
+                    quantity=item.quantity
+                )
+                # Update book quantity
+                item.book.update_quantity(item.book.quantity_in_stock - item.quantity)
+
+            # Clear the cart
+            cart.items.all().delete()
+
+            # Send confirmation email
+            send_mail(
+                'Order Confirmation',
+                f'Your order {order_number} has been placed successfully!',
+                settings.DEFAULT_FROM_EMAIL,
+                [request.user.email],
+                fail_silently=False,
+            )
+
+            return redirect('order_success')  # Redirect to a success page
+
+    else:
+        form = CheckoutForm(user=request.user)
+
+    return render(request, 'checkout.html', {'form': form})
+
+def order_success(request):
+    orders = Order.objects.filter(user=request.user).order_by('-date_ordered')
+    return render(request, 'order_success.html', {'orders': orders})
 
 def home(request):
     featured_books = list(Book.objects.filter(category='featured'))

@@ -1,0 +1,12 @@
+<!-- templates/order_success.html -->
+{% extends "base_nav.html" %}
+
+{% block maincontent %}
+  <h2>Order Success</h2>
+  <p>Your order has been placed successfully. Here are your orders:</p>
+  <ul>
+    {% for order in orders %}
+      <li>Order Number: {{ order.order_number }} - Total: {{ order.order_total }}</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

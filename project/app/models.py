@@ -22,7 +22,9 @@ class Book(models.Model):
     selling_price = models.DecimalField(max_digits=10, decimal_places=2)
     def __str__(self):
         return self.title
-    
+    def update_quantity(self, quantity):
+        self.quantity = quantity
+        self.save()
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, username, first_name, last_name, password=None, **extra_fields):
         if not email:
@@ -82,7 +84,7 @@ class Cart(models.Model):
         self.save()
     
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     book = models.ForeignKey(Book, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
@@ -99,16 +101,6 @@ class ShippingBillingInfo(models.Model):
     country = models.CharField(max_length=100)
     def __str__(self):
         return f'{self.user.username} - {self.address}'
-"""
-class PaymentInfo(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_methods')
-    card_number = models.CharField(max_length=16)
-    expiration_date = models.CharField(max_length=5)
-    cvv = models.CharField(max_length=6)
-
-    def __str__(self):
-        return f'{self.user.username} - {self.card_number}'
-"""
 
 class PaymentInfo(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='payment_methods') 
@@ -164,6 +156,8 @@ class Order(models.Model):
     
     def __str__(self):
         return f"{self.user.username} order from {date}"
+    def get_order_items(self):
+        return self.items.all()
     
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
