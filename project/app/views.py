@@ -114,12 +114,16 @@ def checkout(request):
                 fail_silently=False,
             )
 
+            
+
             return redirect('order_success')  # Redirect to a success page
 
     else:
+        cart = Cart.objects.get(user=request.user)
+        cart_items = CartItem.objects.filter(cart=cart)
         form = CheckoutForm(user=request.user)
 
-    return render(request, 'checkout.html', {'form': form})
+    return render(request, 'checkout.html', {'form': form, 'cart_items': cart_items})
 
 def order_success(request):
     orders = Order.objects.filter(user=request.user).order_by('-date_ordered')
@@ -405,7 +409,7 @@ def register(request):
             # verification email -- implement
             send_verification_email(request, user)
             if payment_form.is_valid():
-                payment_info = payment_form.save(commit=False)
+                payment_info = payment_form.save(user,commit=False)
                 payment_info.user = user
                 payment_info.save()
             return redirect('email_verification_sent')

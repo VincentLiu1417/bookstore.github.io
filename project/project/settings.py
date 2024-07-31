@@ -94,9 +94,16 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE' : 'django.db.backends.mysql',
-        'OPTIONS': {
-            'read_default_file': '/etc/mysql/my.cnf',
-        },
+        'NAME': 'bookstore',
+        'USER': 'django_user',
+        'PASSWORD': '0xcmhpw01$',
+        'HOST': 'localhost',
+        'PORT': '3306',
+    #'OPTIONS': {
+     #       'read_default_file': '/etc/mysql/my.cnf',
+      #  },
+
+        
     }
 }
 

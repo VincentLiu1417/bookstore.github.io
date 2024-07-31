@@ -2,11 +2,73 @@
 {% extends "base_nav.html" %}
 
 {% block maincontent %}
-  <h2>Order Success</h2>
+<style>
+    .order-success-page {
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #FDFBE4;
+        font-family: 'Gaegu', sans-serif;
+        padding: 20px;
+        border-radius: 8px;
+    }
+    .order-success-header {
+        text-align: center;
+        color: black;
+        font-size: 64px;
+        font-weight: 700;
+        margin-top: 20px;
+    }
+    .order-details {
+        background: rgba(163, 89, 80, 0.20);
+        border-radius: 8px;
+        padding: 20px;
+        margin: 10px auto;
+        width: 100%;
+        max-width: 600px;
+    }
+    .order-details p {
+        font-size: 18px;
+        color: black;
+    }
+    .order-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    .order-list li {
+        background: rgba(163, 89, 80, 0.20);
+        border-radius: 8px;
+        padding: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .order-list li span {
+        font-size: 18px;
+        color: black;
+    }
+    .reorder-form button {
+        background-color: green;
+        color: white;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .reorder-form button:hover {
+        background-color: darkgreen;
+    }
+</style>
+<div class="order-success-page">
+  <h2 class="order-success-header">Order Success</h2>
+  <div class="order-details">
   <p>Your order has been placed successfully. Here are your orders:</p>
-  <ul>
+  <ul class="order-list">
     {% for order in orders %}
-    <li>Order Number: {{ order.order_number }} - Total: {{ order.order_total }}
+    <li>
+      <span>Order Number: {{ order.order_number }} - Total: {{ order.order_total }}</span>
       <form action="{% url 'reorder' order.order_number %}" method="post" style="display:inline;">
         {% csrf_token %}
         <button type="submit">Reorder</button>
@@ -14,4 +76,7 @@
     </li>
     {% endfor %}
   </ul>
+  </div>
+</div>
+
 {% endblock %}

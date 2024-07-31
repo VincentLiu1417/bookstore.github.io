@@ -41,7 +41,6 @@ class CheckoutForm(forms.Form):
 
     def clean(self):
         cleaned_data = super().clean()
-        # You can add custom validation here if needed
         return cleaned_data
 class PromotionFactoryForm(forms.ModelForm):
     '''
@@ -174,7 +173,7 @@ class UserProfileUpdateForm(UserChangeForm):
     password = None # exclude the password from the form
     class Meta:
         model = CustomUser
-        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'zip')
+        fields = ('username', 'first_name', 'last_name', 'phone', 'address', 'state', 'city', 'zip')
         widgets = {
             'address' : forms.Textarea(attrs={'rows': 1, 'cols': 40}),
         }

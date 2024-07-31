@@ -135,6 +135,9 @@ class PaymentInfo(models.Model):
 
     def get_decrypted_cvv(self):
         return self.decrypt_value(self.cvv)
+    def __str__(self):
+        return f'**** - **** - **** - {self.get_decrypted_card_number()[-4:]}'
+    
     
 class Promotion(models.Model):
     code = models.CharField(max_length=50, unique=True)
